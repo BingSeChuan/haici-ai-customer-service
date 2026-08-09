@@ -21,7 +21,7 @@ from app.services.llm import chat_json  # noqa: E402
 from app.services.rag import retrieve_chunks  # noqa: E402
 
 EVAL_CASES = [
-    {"question": "云杉ERP标准版多少钱一年？", "expect": ["3999"]},
+    {"question": "文博ERP标准版多少钱一年？", "expect": ["3999"]},
     {"question": "软件不想要了能退款吗？", "expect": ["7天", "退款"]},
     {"question": "专业版和标准版有什么区别？", "expect": ["标准版", "专业版"]},
     {"question": "忘记密码怎么办？", "expect": ["忘记密码"]},

@@ -61,7 +61,7 @@ def main():
     import io
 
     boundary = "----smoketest"
-    doc_text = "测试文档：本公司产品为云杉ERP标准版，年费3999元，7天内未使用可全额退款。"
+    doc_text = "测试文档：本公司产品为文博ERP标准版，年费3999元，7天内未使用可全额退款。"
     body = (
         f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"smoke.txt\"\r\n"
         f"Content-Type: text/plain\r\n\r\n{doc_text}\r\n--{boundary}--\r\n"
@@ -89,7 +89,7 @@ def main():
     check("文档向量化完成 (ready)", status == "ready", f"status={status}")
 
     print("5) 流式问答（SSE）")
-    code, resp = req("POST", "/api/chat/stream", {"question": "云杉ERP标准版一年多少钱？"})
+    code, resp = req("POST", "/api/chat/stream", {"question": "文博ERP标准版一年多少钱？"})
     check("SSE 返回 200", code == 200, f"({code})")
     events = re.findall(r"event: (\w+)", resp)
     for ev in ["start", "delta", "sources", "followups", "done"]:

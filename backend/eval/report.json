@@ -3,8 +3,8 @@
   "hit_rate": 1.0,
   "results": [
     {
-      "question": "云杉ERP标准版多少钱一年？",
-      "answer_head": "云杉ERP标准版定价为 **3999元/年**，按年订阅，适用于10人以下的小微企业[1]。如果您想了解其他版本或功能对",
+      "question": "文博ERP标准版多少钱一年？",
+      "answer_head": "文博ERP标准版定价为 **3999元/年**，按年订阅，适用于10人以下的小微企业[1]。如果您想了解其他版本或功能对",
       "context_chunks": 6,
       "expect_hit": true,
       "faithfulness": 1.0,

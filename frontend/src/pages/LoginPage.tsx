@@ -33,7 +33,7 @@ export default function LoginPage({ onLoggedIn }: { onLoggedIn: (u: User) => voi
       <form className="login-card" onSubmit={submit}>
         <div className="login-brand">
           <span className="brand-logo lg">🌲</span>
-          <h1>云杉智能客服</h1>
+          <h1>文博智能客服</h1>
           <p>企业级 LLM 智能客服系统 · RAG 知识问答</p>
         </div>
 

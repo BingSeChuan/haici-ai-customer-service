@@ -162,8 +162,8 @@ export default function ChatPage() {
           {messages.length === 0 && !stream && (
             <div className="welcome">
               <div className="welcome-logo">🌲</div>
-              <h2>你好，我是云杉智能客服</h2>
-              <p>我可以回答关于云杉ERP 产品、FAQ、退换货政策等问题</p>
+              <h2>你好，我是文博智能客服</h2>
+              <p>我可以回答关于文博ERP 产品、FAQ、退换货政策等问题</p>
               <div className="welcome-suggests">
                 {["标准版多少钱一年？", "忘记密码怎么办？", "软件不想要了能退款吗？"].map((q) => (
                   <button key={q} className="chip" onClick={() => setInput(q)}>

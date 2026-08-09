@@ -34,7 +34,7 @@ export default function App() {
       <header className="topbar">
         <div className="brand">
           <span className="brand-logo">🌲</span>
-          <span>云杉智能客服</span>
+          <span>文博智能客服</span>
         </div>
         <nav className="tabs">
           <button className={tab === "chat" ? "tab active" : "tab"} onClick={() => setTab("chat")}>

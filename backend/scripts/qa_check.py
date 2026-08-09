@@ -42,7 +42,7 @@ def main():
     token = json.loads(req("POST", "/api/auth/login", {"account": "13800000000", "password": "admin123"}))[
         "access_token"
     ]
-    ask(token, "云杉ERP标准版多少钱一年？")
+    ask(token, "文博ERP标准版多少钱一年？")
     ask(token, "软件不想要了能退款吗？")
     ask(token, "专业版和标准版有什么区别？")
     ask(token, "忘记密码怎么办？")

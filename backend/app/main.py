@@ -1,4 +1,4 @@
-"""海鹚智能客服系统 — FastAPI 入口。
+"""文博智能客服系统 — FastAPI 入口。
 
 启动：uvicorn app.main:app --reload --port 8000（在 backend/ 目录下）
 """
@@ -72,7 +72,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="海鹚智能客服系统",
+    title="文博智能客服系统",
     description="企业级 LLM 智能客服（RAG + 流式输出）— AI 开发工程师笔试题",
     version="1.0.0",
     lifespan=lifespan,
@@ -96,4 +96,4 @@ app.include_router(memory.router)
 
 @app.get("/")
 def root():
-    return {"app": "海鹚智能客服系统", "docs": "/docs", "status": "ok"}
+    return {"app": "文博智能客服系统", "docs": "/docs", "status": "ok"}

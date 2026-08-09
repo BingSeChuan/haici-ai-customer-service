@@ -99,7 +99,7 @@ def test_knowledge_doc_lifecycle(api_client, random_account):
 
     resp = api_client.post(
         "/api/knowledge/upload",
-        files={"file": ("测试.txt", "云杉ERP标准版定价3999元每年。".encode(), "text/plain")},
+        files={"file": ("测试.txt", "文博ERP标准版定价3999元每年。".encode(), "text/plain")},
         headers=headers,
     )
     assert resp.status_code == 200
@@ -171,7 +171,7 @@ def test_chat_stream_event_sequence(api_client, random_account):
     token = register(api_client, random_account)
     resp = api_client.post(
         "/api/chat/stream",
-        json={"question": "云杉ERP标准版多少钱一年？"},
+        json={"question": "文博ERP标准版多少钱一年？"},
         headers=auth(token),
     )
     assert resp.status_code == 200

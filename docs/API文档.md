@@ -125,7 +125,7 @@ Content-Type: application/json
 ```json
 {
   "session_id": null,
-  "question": "云杉ERP标准版多少钱一年？"
+  "question": "文博ERP标准版多少钱一年？"
 }
 ```
 
@@ -151,7 +151,7 @@ event: start
 data: {"session_id": 12, "message_id": 45, "intent": "产品咨询"}
 
 event: delta
-data: {"content": "您好，云杉ERP标准版定价为 "}
+data: {"content": "您好，文博ERP标准版定价为 "}
 
 event: delta
 data: {"content": "3999元/年"}
@@ -200,7 +200,7 @@ GET /api/sessions
 [
   {
     "id": 12,
-    "title": "云杉ERP标准版多少钱一年？",
+    "title": "文博ERP标准版多少钱一年？",
     "intent": "产品咨询",
     "created_at": "2026-08-09T21:00:00",
     "updated_at": "2026-08-09T21:01:00"
@@ -222,7 +222,7 @@ GET /api/sessions/{session_id}/messages
     "id": 45,
     "session_id": 12,
     "role": "user",
-    "content": "云杉ERP标准版多少钱一年？",
+    "content": "文博ERP标准版多少钱一年？",
     "intent": "产品咨询",
     "sources": [],
     "followups": [],
@@ -233,7 +233,7 @@ GET /api/sessions/{session_id}/messages
     "id": 46,
     "session_id": 12,
     "role": "assistant",
-    "content": "您好，云杉ERP标准版定价为 **3999元/年**...",
+    "content": "您好，文博ERP标准版定价为 **3999元/年**...",
     "intent": "产品咨询",
     "sources": [
       {
@@ -307,10 +307,10 @@ GET /api/admin/sessions
   {
     "id": 12,
     "user": { "id": 1, "nickname": "管理员", "account": "13800000000" },
-    "title": "云杉ERP标准版多少钱一年？",
+    "title": "文博ERP标准版多少钱一年？",
     "intent": "产品咨询",
     "message_count": 4,
-    "last_question": "云杉ERP标准版多少钱一年？",
+    "last_question": "文博ERP标准版多少钱一年？",
     "created_at": "2026-08-09T21:00:00",
     "updated_at": "2026-08-09T21:01:00"
   }

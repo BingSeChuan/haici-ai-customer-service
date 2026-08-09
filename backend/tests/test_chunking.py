@@ -4,7 +4,7 @@ from app.services.knowledge import _detect_category, chunk_text, split_children
 
 def test_section_units_are_atomic():
     """章节单元（1./一、/Q1：/第X条）必须独立成块，不与其他内容合并。"""
-    text = """云杉公司产品介绍
+    text = """文博公司产品介绍
 
 1. 标准版（定价 3999 元/年）
 适用对象：10人以下的小微企业。
@@ -22,7 +22,7 @@ def test_section_units_are_atomic():
 
 def test_short_headings_merged_into_next():
     """短标题块（<20 字）应并入下一块，避免纯关键词块虚高命中。"""
-    text = "一、公司简介\n云杉科技成立于2016年，专注于企业数字化服务。\n\n二、核心产品\n云杉ERP是企业管理系统。"
+    text = "一、公司简介\n文博科技成立于2016年，专注于企业数字化服务。\n\n二、核心产品\n文博ERP是企业管理系统。"
     chunks = chunk_text(text)
     merged = [c for c in chunks if "公司简介" in c or "核心产品" in c]
     # 标题与正文合并，不存在独立短块
