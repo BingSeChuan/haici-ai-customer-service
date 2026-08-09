@@ -28,3 +28,6 @@ backend/.playwright-cli/
 
 # Word 临时文件
 ~\.docx
+
+# Playwright 测试残留
+.playwright-cli/
