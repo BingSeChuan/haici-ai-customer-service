@@ -25,3 +25,6 @@ dist/
 # 笔试题文档（内部资料）
 AI开发工程师笔试题.docx
 backend/.playwright-cli/
+
+# Word 临时文件
+~\.docx
