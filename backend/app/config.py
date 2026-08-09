@@ -43,7 +43,6 @@ class Settings(BaseSettings):
     rag_rerank_threshold: float = 0.0     # 重排分阈值（低于视为不相关，兜底）
     rag_context_budget_chars: int = 3000   # 进入 Prompt 的片段字符预算
     rag_history_rounds: int = 6            # 多轮对话携带最近 N 轮
-    rerank_model: str = "BAAI/bge-reranker-base"  # 交叉编码器重排模型
     chunk_size: int = 400                  # 父块长度（字符）
     chunk_overlap: int = 50                # 分块重叠
     child_chunk_size: int = 180            # 子块长度（检索单元，Parent-Child 分块）

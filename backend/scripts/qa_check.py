@@ -1,5 +1,12 @@
-"""端到端问答验证脚本（输出 UTF-8 到文件）。"""
+"""端到端问答验证脚本（输出 UTF-8 到文件）。
+
+用法：先设置管理员密码环境变量，再运行
+    Windows PowerShell:  $env:ADMIN_PASSWORD = "你的密码"
+    Linux/macOS:         export ADMIN_PASSWORD="你的密码"
+    .venv/Scripts/python scripts/qa_check.py
+"""
 import json
+import os
 import re
 import sys
 import time
@@ -39,9 +46,12 @@ def ask(token, q):
 
 def main():
     out = sys.stdout
-    token = json.loads(req("POST", "/api/auth/login", {"account": "13800000000", "password": "admin123"}))[
-        "access_token"
-    ]
+    admin_password = os.environ.get("ADMIN_PASSWORD")
+    if not admin_password:
+        sys.exit("错误：未设置 ADMIN_PASSWORD 环境变量（与 scripts/init_db.py 一致），拒绝运行")
+    token = json.loads(
+        req("POST", "/api/auth/login", {"account": "13800000000", "password": admin_password})
+    )["access_token"]
     ask(token, "文博ERP标准版多少钱一年？")
     ask(token, "软件不想要了能退款吗？")
     ask(token, "专业版和标准版有什么区别？")

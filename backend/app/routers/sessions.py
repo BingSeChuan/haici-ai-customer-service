@@ -56,6 +56,8 @@ def submit_feedback(
     msg = db.scalar(select(Message).where(Message.id == message_id, owned))
     if msg is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="消息不存在")
+    if msg.role != "assistant":
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="只能对 AI 回答进行反馈")
 
     existing = db.scalar(
         select(Feedback).where(Feedback.message_id == message_id, Feedback.user_id == user.id)
