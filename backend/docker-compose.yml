@@ -1,0 +1,24 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: haici_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: haici_root_2026
+      MYSQL_DATABASE: haici_cs
+      MYSQL_USER: haici
+      MYSQL_PASSWORD: haici_2026
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - haici_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-phaici_root_2026"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  haici_mysql_data:
