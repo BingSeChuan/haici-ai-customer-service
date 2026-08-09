@@ -1,4 +1,4 @@
-"""管理后台（加分项）：全量统计 + 全量会话记录查看。"""
+"""管理后台：全量统计 + 全量会话记录查看。"""
 from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -59,7 +59,7 @@ def _require_admin(user: User):
 
 @router.get("/sessions")
 def admin_sessions(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    """全量会话记录（加分项）：所有用户的会话列表，含用户信息与消息摘要。
+    """全量会话记录：所有用户的会话列表，含用户信息与消息摘要。
 
     修复 5：一次聚合查询替代循环内 N×2 次独立查询——
     消息数（GROUP BY）与最后一条用户消息（MAX(id) 子查询）均提前聚合。

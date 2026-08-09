@@ -66,9 +66,22 @@ app/
 ├── routers/           # auth / chat / knowledge / sessions / admin / memory
 └── services/          # rag / llm / embedding / vector_store / knowledge / usage / auth / memory
 scripts/
-├── init_db.py         # 建表 + 种子数据
+├── init_db.py         # 建表 + 种子数据（管理员密码经 ADMIN_PASSWORD 注入）
+├── smoke_test.py      # 端到端冒烟测试
+├── qa_check.py        # 端到端问答验证（需设置 ADMIN_PASSWORD）
+├── backfill_memory_vector_id.py  # 存量记忆向量回填
+agent_demo/            # Agent 多服务任务拆解演示（CLI）
+eval/                  # RAG 回答质量离线评估（rag_eval.py）
 data/seed_docs/        # 示例知识库文档（启动自动向量化）
 ```
+
+## 附加工具
+
+- **agent_demo/**：根据自然语言需求拆解需改动的微服务，输出并行组 / 串行链及判定依据。运行：
+  ```bash
+  .venv/Scripts/python agent_demo/agent.py "用户下单后自动发送短信通知"
+  ```
+- **eval/**：RAG 回答质量离线评估（测试集 + LLM-as-judge 打分，结果写入 report.json）。
 
 ## 测试
 

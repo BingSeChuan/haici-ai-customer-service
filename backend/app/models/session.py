@@ -7,7 +7,7 @@ from ..database import Base
 
 
 class ChatSession(Base):
-    """会话：每次对话为独立 Session。intent 记录会话主要意图（加分项标注）。"""
+    """会话：每次对话为独立 Session。intent 记录会话主要意图。"""
 
     __tablename__ = "sessions"
 

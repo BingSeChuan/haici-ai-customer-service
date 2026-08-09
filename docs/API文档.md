@@ -102,7 +102,7 @@ DELETE /api/knowledge/{doc_id}
 
 级联删除：先清除 Chroma 中的对应向量数据，再删除元数据与本地文件。响应：`{"ok": true}`。
 
-### 2.5 知识库管理（加分项）
+### 2.5 知识库管理
 
 ```
 GET  /api/knowledge/bases          # 知识库列表
@@ -133,7 +133,7 @@ Content-Type: application/json
 |------|------|
 | `session_id` | 会话 ID；为空则自动创建新会话并返回新 ID |
 | `question` | 问题内容，≤ 500 字（超出返回 422） |
-| `knowledge_base_id` | 可选（多知识库路由，加分项）：指定后只在该知识库内检索；不传则全量检索并自动路由到最相关的知识库 |
+| `knowledge_base_id` | 可选（多知识库路由）：指定后只在该知识库内检索；不传则全量检索并自动路由到最相关的知识库 |
 
 响应：`Content-Type: text/event-stream`（SSE）。
 
@@ -268,7 +268,7 @@ POST /api/sessions/messages/{message_id}/feedback
 
 ---
 
-## 5. 管理后台（加分项）
+## 5. 管理后台
 
 ### 5.1 统计总览
 

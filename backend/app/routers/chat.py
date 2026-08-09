@@ -90,7 +90,7 @@ async def chat_stream(
     db.commit()
     db.refresh(user_msg)
 
-    # ---- 意图识别（加分项）：失败不影响主链路 ----
+    # ---- 意图识别：失败不影响主链路 ----
     intent = await detect_intent(question)
     session.intent = intent
     user_msg.intent = intent
@@ -104,7 +104,7 @@ async def chat_stream(
             raise HTTPException(status.HTTP_404_NOT_FOUND, detail="知识库不存在")
 
     # ---- 向量检索（阈值过滤后可能为空 → 兜底） ----
-    # 多知识库路由（加分项）：指定库则只检索该库；未指定则全量检索自动路由
+    # 多知识库路由：指定库则只检索该库；未指定则全量检索自动路由
     chunks, is_empty = await retrieve_chunks(question, knowledge_base_id=body.knowledge_base_id)
     routed_kb_name = None
     if not is_empty and body.knowledge_base_id is None:
@@ -179,7 +179,7 @@ async def chat_stream(
 
             yield _sse("sources", {"sources": sources})
 
-            # ---- 追问建议（加分项）：单独小调用，失败返回空 ----
+            # ---- 追问建议：单独小调用，失败返回空 ----
             suggestions = await generate_followups(question, answer) if not is_empty else []
             if suggestions:
                 assistant_msg.followups = suggestions

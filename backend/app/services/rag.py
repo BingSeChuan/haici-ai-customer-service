@@ -170,7 +170,7 @@ RERANK_PROMPT = """你是检索结果精排器。根据用户问题，对候选�
 
 
 async def detect_intent(question: str) -> str:
-    """意图识别（加分项）：LLM 分类，失败时关键词启发式兜底，保证主链路不受影响。"""
+    """意图识别：LLM 分类，失败时关键词启发式兜底，保证主链路不受影响。"""
     try:
         result = await chat_json(
             [
@@ -401,7 +401,7 @@ def build_rag_messages(
 
 
 async def generate_followups(question: str, answer: str) -> list[str]:
-    """追问建议（加分项）：回答结束后生成 2-3 条。失败返回空列表，不影响主流程。"""
+    """追问建议：回答结束后生成 2-3 条。失败返回空列表，不影响主流程。"""
     try:
         result = await chat_json(
             [

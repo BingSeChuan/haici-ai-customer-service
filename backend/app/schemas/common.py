@@ -34,7 +34,7 @@ class UserOut(BaseModel):
 class ChatRequest(BaseModel):
     session_id: int | None = Field(None, description="为空则创建新会话")
     question: str = Field(..., min_length=1, description="问题内容（≤500 字，路由层校验）")
-    knowledge_base_id: int | None = Field(None, description="指定知识库（加分项路由）")
+    knowledge_base_id: int | None = Field(None, description="指定知识库（不传则自动路由）")
 
 
 class SessionOut(BaseModel):

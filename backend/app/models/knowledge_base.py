@@ -7,7 +7,7 @@ from ..database import Base
 
 
 class KnowledgeBase(Base):
-    """知识库（加分项：多知识库路由）。用户可建多个知识库，文档归属知识库。"""
+    """知识库（多知识库路由）。用户可建多个知识库，文档归属知识库。"""
 
     __tablename__ = "knowledge_bases"
 
