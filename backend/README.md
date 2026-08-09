@@ -30,8 +30,10 @@ cp .env.example .env
 #    编辑 .env，填入你的 DeepSeek API Key：
 #    LLM_API_KEY=sk-xxxxxxxx
 
-# 4. 初始化数据库（建表 + 管理员账号 13800000000/admin123）
+# 4. 初始化数据库（建表 + 管理员账号；密码必须经环境变量注入）
+#    Windows: $env:ADMIN_PASSWORD = "你的强密码"   Linux: export ADMIN_PASSWORD="你的强密码"
 .venv/Scripts/python scripts/init_db.py
+#    管理员账号：13800000000 / 上述密码（is_admin=true）
 
 # 5. 启动服务（首次启动会自动下载 embedding 模型并向量化示例文档）
 .venv/Scripts/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000

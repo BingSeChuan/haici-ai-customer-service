@@ -77,7 +77,7 @@ export default function LoginPage({ onLoggedIn }: { onLoggedIn: (u: User) => voi
         <button className="btn primary block" disabled={loading}>
           {loading ? "请稍候…" : mode === "login" ? "登 录" : "注 册"}
         </button>
-        <p className="login-tip">演示账号：管理员 13800000000 / admin123（可查看管理后台）</p>
+        <p className="login-tip">管理员账号：13800000000（密码为初始化时 ADMIN_PASSWORD 设置的值，可查看管理后台）</p>
       </form>
     </div>
   );

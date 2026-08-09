@@ -17,7 +17,9 @@ services:
     volumes:
       - haici_mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-phaici_root_2026"]
+      # 密码引用容器内环境变量（compose 中 $$ 转义为字面 $），
+      # 用户通过 MYSQL_ROOT_PASSWORD 覆盖密码后 healthcheck 自动跟随，不再硬编码
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
       interval: 5s
       timeout: 5s
       retries: 20

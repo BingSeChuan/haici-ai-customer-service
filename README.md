@@ -52,7 +52,7 @@ cp .env.example .env            # 填入你的 DeepSeek API Key（LLM_API_KEY=�
 cd ../frontend && npm install && npm run dev
 ```
 
-访问 **http://localhost:5173**，演示账号：`13800000000 / admin123`（管理员）。
+访问 **http://localhost:5173**，管理员账号：`13800000000`（密码为初始化时 `ADMIN_PASSWORD` 环境变量设置的值，演示环境可设为 `admin123`）。
 
 > 没有 DeepSeek Key？可切换任意 OpenAI 兼容端点（通义千问/月之暗面/Groq 免费额度）或本地 Ollama，见 [运行指南.md](运行指南.md)。
 
