@@ -1,5 +1,5 @@
 """chunk_text 分块策略单元测试（不依赖外部服务，纯函数）。"""
-from app.services.knowledge import _detect_category, chunk_text
+from app.services.knowledge import _detect_category, chunk_text, split_children
 
 
 def test_section_units_are_atomic():
@@ -58,3 +58,28 @@ def test_category_detection():
     assert _detect_category("退货必须遵循本政策规定，不得逾期") == "rule"
     assert _detect_category("Q1：忘记密码怎么办？") == "faq"
     assert _detect_category("标准版定价3999元，包含进销存功能") == "product"
+
+
+def test_split_children_parent_child_structure():
+    """Parent-Child：短父块单子块；长父块切成重叠子块且都指向同一父块。"""
+    short_parent = "标准版定价3999元每年。"
+    pairs = split_children([short_parent], child_size=180)
+    assert len(pairs) == 1
+    assert pairs[0][0] == short_parent  # parent
+    assert pairs[0][1] == short_parent  # child
+
+    long_parent = "第一句。" * 50  # 200 字
+    pairs = split_children([long_parent], child_size=80)
+    assert len(pairs) >= 2
+    # 所有子块指向同一父块
+    assert all(p == long_parent for p, _ in pairs)
+    # 子块都在预算内
+    assert all(len(c) <= 80 for _, c in pairs)
+
+
+def test_split_children_multi_parents():
+    parents = ["版本一的内容。" * 40, "版本二的内容。" * 40]
+    pairs = split_children(parents, child_size=60)
+    # 两个父块各有子块
+    assert any(p.startswith("版本一") for p, _ in pairs)
+    assert any(p.startswith("版本二") for p, _ in pairs)

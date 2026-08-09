@@ -32,16 +32,20 @@ class Settings(BaseSettings):
     embedding_provider: str = "local_bge"  # local_bge | openai_compatible
     embedding_api_key: str = ""
     embedding_base_url: str = ""
-    embedding_model: str = ""
+    embedding_model: str = ""              # 默认 BAAI/bge-small-zh-v1.5（可换 large/m3）
     hf_endpoint: str = "https://hf-mirror.com"  # 中国大陆网络下载镜像
 
     # RAG 参数
-    rag_top_k: int = 8
-    rag_similarity_threshold: float = 0.45
-    rag_context_budget_chars: int = 4000   # 检索片段拼入 Prompt 的字符预算
+    rag_top_k: int = 6                    # 重排后进入 Prompt 的片段数
+    rag_recall_k: int = 12                # 重排前召回候选数（多路召回）
+    rag_similarity_threshold: float = 0.4  # 召回阈值（重排前的粗过滤，放宽给重排器）
+    rag_rerank_threshold: float = 0.0     # 重排分阈值（低于视为不相关，兜底）
+    rag_context_budget_chars: int = 3000   # 进入 Prompt 的片段字符预算
     rag_history_rounds: int = 6            # 多轮对话携带最近 N 轮
-    chunk_size: int = 500                  # 分块长度（字符）
+    rerank_model: str = "BAAI/bge-reranker-base"  # 交叉编码器重排模型
+    chunk_size: int = 400                  # 父块长度（字符）
     chunk_overlap: int = 50                # 分块重叠
+    child_chunk_size: int = 180            # 子块长度（检索单元，Parent-Child 分块）
 
     # 业务规则
     max_question_length: int = 500

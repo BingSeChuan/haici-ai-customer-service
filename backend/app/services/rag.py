@@ -39,9 +39,13 @@ def _tokenize(text: str) -> list[str]:
 
 
 class _BM25Index:
-    """基于整个语料库的 BM25（k1=1.5, b=0.75），语料规模小，按需构建。"""
+    """基于父块语料的 BM25（k1=1.5, b=0.75），语料规模小，按需构建。
 
-    def __init__(self, chunks: list[tuple[str, str, str]]):  # (chunk_id, text, knowledge_base_id)
+    Parent-Child 结构下索引父块文本（上下文完整），以 parent_id 为检索单位，
+    与向量检索（子块）在父块层面融合。
+    """
+
+    def __init__(self, chunks: list[tuple[str, str, str]]):  # (parent_id, parent_text, knowledge_base_id)
         self.n = len(chunks)
         self.avgdl = 0.0
         self.doc_freq: dict[str, int] = {}
@@ -88,13 +92,14 @@ def _get_bm25() -> _BM25Index:
     if _bm25 is None:
         col = get_collection()
         data = col.get(include=["documents", "metadatas"])
-        _bm25 = _BM25Index(
-            [
-                (cid, doc, meta.get("knowledge_base_id", ""))
-                for cid, doc, meta in zip(data["ids"], data["documents"], data["metadatas"])
-            ]
-        )
-        logger.info("BM25 索引构建完成: %d 个片段", len(data["ids"]))
+        # 按 parent_id 去重，索引父块文本（parent_id -> (parent_id, text, kb_id)）
+        seen: dict[str, tuple[str, str, str]] = {}
+        for cid, meta in zip(data["ids"], data["metadatas"]):
+            pid = meta.get("parent_id", cid)
+            if pid not in seen:
+                seen[pid] = (pid, meta.get("parent_text", ""), meta.get("knowledge_base_id", ""))
+        _bm25 = _BM25Index([(pid, text, kb) for pid, text, kb in seen.values()])
+        logger.info("BM25 索引构建完成: %d 个父块", len(seen))
     return _bm25
 
 
@@ -152,6 +157,17 @@ HISTORY_COMPRESS_PROMPT = """请把以下客服对话压缩成一段不超过 30
 对话内容：
 {history}"""
 
+# LLM 重排：多路召回后精排（企业级"多路召回 + 重排"的第二段）
+RERANK_PROMPT = """你是检索结果精排器。根据用户问题，对候选知识片段做两件事：
+1. 判断候选是否与问题相关（有任何片段直接回答/包含关键实体即视为相关，全部无关则为 false）；
+2. 把相关片段按相关度从高到低排序。
+只输出 JSON：{{"relevant": true/false, "ranking": [相关片段编号按相关度降序], "reason": "一句话说明"}}，不要输出其他内容。
+
+用户问题：{question}
+
+候选片段：
+{chunks}"""
+
 
 async def detect_intent(question: str) -> str:
     """意图识别（加分项）：LLM 分类，失败时关键词启发式兜底，保证主链路不受影响。"""
@@ -203,24 +219,76 @@ async def expand_query(question: str) -> str:
     return question
 
 
+async def rerank_chunks(
+    question: str, candidates: list[dict], top_k: int
+) -> tuple[list[dict], bool]:
+    """LLM 重排：多路召回后的精排（企业级"多路召回 + 重排"第二段）。
+
+    返回 (重排后的片段, 是否相关)。重排同时承担"相关性判定"：
+    - relevant=false（全部候选与问题无关）→ 调用方走空检索兜底，不编造；
+    - 用 DeepSeek 对候选父块排序（带理由），失败回退召回顺序；
+    - 重排是"检索质量"与"上下文预算"之间的最后一道闸：把最相关的
+      top_k 块送进 Prompt，其余丢弃。
+    """
+    if len(candidates) <= top_k:
+        # 候选少时仍做相关性判定（防止擦边召回直接进 Prompt）
+        pass
+    # 候选片段截断展示（重排只看概要，不占太多 token）
+    lines = []
+    for i, c in enumerate(candidates, start=1):
+        text = c["text"][:150]
+        lines.append(f"[{i}] {text}")
+    try:
+        result = await chat_json(
+            [
+                {"role": "system", "content": "你是检索结果精排器。"},
+                {
+                    "role": "user",
+                    "content": RERANK_PROMPT.format(question=question, chunks="\n".join(lines)),
+                },
+            ],
+            temperature=0.0,
+            max_tokens=400,
+        )
+        if result.get("relevant") is False:
+            logger.info("LLM 重排判定候选全部无关: %s", result.get("reason", "")[:60])
+            return [], False
+        ranking = result.get("ranking", [])
+        if ranking:
+            order = [int(x) for x in ranking if str(x).isdigit() and 1 <= int(x) <= len(candidates)]
+            if len(order) == len(set(order)) and order:
+                # 未列入 ranking 的候选按原顺序补尾
+                ordered = [candidates[i - 1] for i in order]
+                ordered += [c for c in candidates if c not in ordered]
+                logger.info("LLM 重排完成，top%d: %s", top_k, result.get("reason", "")[:60])
+                return ordered[:top_k], True
+    except Exception as e:
+        logger.warning("LLM 重排失败，使用召回排序: %s", e)
+    return candidates[:top_k], True
+
+
 async def retrieve_chunks(
     question: str, top_k: int | None = None, knowledge_base_id: int | None = None
 ) -> tuple[list[dict], bool]:
-    """多查询向量检索 + 阈值过滤 + 类别优先级排序。
+    """企业级检索链路：多路召回 → 父块融合 → LLM 重排 → 规则加成 → 预算截断。
 
-    检索策略（关键设计，详见 AI架构设计.md）：
-    1. 多查询（Multi-Query）：原问题 + LLM 改写后的查询各自检索，
-       按 chunk id 合并取最高相似度 —— 口语问题靠原问题命中（如 FAQ 原文），
-       书面问题靠改写命中（如"年费价格"命中定价条款），互不拖累；
-    2. 多知识库路由（加分项）：指定 knowledge_base_id 时只检索该库；
-       未指定时全量检索，命中片段按知识库聚合，得分最高的库即"路由目标"，
-       由调用方展示（自动路由）；
-    3. 阈值过滤：低于相似度阈值的片段视为不相关 → 空检索兜底；
-    4. 大规模上下文机制：按类别优先级排序（规则类 > FAQ > 产品 > 其他），
-       同类别内按相似度降序，且每个类别最多取 2 块 —— 防止大量同主题
-       噪音块把答案块挤出 Prompt，保证关键规则不被注意力稀释。
+    Parent-Child 结构（详见 knowledge.split_children）：
+    - 向量检索命中"子块"（180 字，精准）；
+    - 融合与重排以"父块"为单位（完整语义单元，上下文完整）；
+    - 喂给 LLM 的是父块文本 —— 既不丢上下文，也不被碎片稀释。
+
+    完整链路：
+    1. 多查询（原问题 + LLM 改写）× 多路（向量 + BM25）召回 RAG_RECALL_K=12 候选；
+    2. 按 parent_id 合并（同父块多子块取最高相似度），阈值 0.4 粗过滤；
+    3. LLM 重排（rerank_chunks）：精排取 top_k；
+    4. 规则类软加成 + Token 预算截断；
+    5. 空检索（无候选过阈值）→ 兜底，不调用 LLM。
     """
+    import time
+
+    t0 = time.time()
     top_k = top_k or settings.rag_top_k
+    recall_k = settings.rag_recall_k
     provider = get_embedding_provider()
     expanded = await expand_query(question)
     if expanded != question:
@@ -229,36 +297,59 @@ async def retrieve_chunks(
     queries = {question, expanded}
     vectors = provider.embed(list(queries))
 
-    # 多路检索：每路（2 个查询 × 向量/BM25）产出排名列表 → RRF 融合
-    merged: dict[str, dict] = {}  # cid -> 最高相似度的检索结果
+    # ---- 1. 多路召回（子块向量 × 2 查询 + 父块 BM25 × 2 查询） ----
+    merged: dict[str, dict] = {}  # parent_id -> 父块检索结果（相似度取子块最高）
     rank_lists: list[list[str]] = []
     bm25 = _get_bm25()
     for q, qv in zip(queries, vectors):
-        v_ranks = search(qv, top_k=max(top_k, 10), knowledge_base_id=knowledge_base_id)
-        b_ranks = bm25.score(q, knowledge_base_id=knowledge_base_id)[: max(top_k, 10)]
-        rank_lists.append([r["id"] for r in v_ranks])
-        rank_lists.append([cid for cid, _ in b_ranks])
+        v_ranks = search(qv, top_k=recall_k, knowledge_base_id=knowledge_base_id)
+        b_ranks = bm25.score(q, knowledge_base_id=knowledge_base_id)[:recall_k]
+        rank_lists.append([r["metadata"].get("parent_id", r["id"]) for r in v_ranks])
+        rank_lists.append(list(b_ranks))  # BM25 索引单位即 parent_id
         for r in v_ranks:
+            pid = r["metadata"].get("parent_id", r["id"])
             if r["similarity"] >= settings.rag_similarity_threshold:
-                cid = r["id"]
-                if cid not in merged or r["similarity"] > merged[cid]["similarity"]:
-                    merged[cid] = r
+                if pid not in merged or r["similarity"] > merged[pid]["similarity"]:
+                    merged[pid] = {
+                        "id": pid,
+                        "text": r["metadata"].get("parent_text", r["text"]),
+                        "metadata": r["metadata"],
+                        "similarity": r["similarity"],
+                    }
     fused = _rrf_fusion(rank_lists)
 
     if not merged:
+        logger.info("检索为空: %s (%.1fs)", question, time.time() - t0)
         return [], True
 
-    # 大规模上下文机制：以 RRF 融合分为主排序，规则类片段加软性加成
-    # （+0.25 ≈ 提升约 17 个名次，保证退货/赔偿等规则类问题不被淹没，
-    #  但不会像硬排序那样把强相关的产品/FAQ 块压出 Prompt —— 这是迭代中
-    #  实测"类别硬排序 + 每类上限"把答案块挤出上下文后修正的方案）
+    # ---- 2. 召回排序（RRF 主序 + 规则类软加成，作为重排前的候选序） ----
     CATEGORY_BOOST = {"rule": 0.25, "faq": 0.10, "product": 0.0, "other": 0.0}
-    hits = sorted(
+    candidates = sorted(
         merged.values(),
         key=lambda r: -(fused.get(r["id"], 0.0) + CATEGORY_BOOST.get(r["metadata"].get("category", "other"), 0.0)),
-    )[: settings.rag_top_k]
+    )
 
-    return hits, False
+    # ---- 3. LLM 重排精排取 top_k（同时做相关性判定，无关则空检索兜底） ----
+    hits, relevant = await rerank_chunks(question, candidates, top_k)
+    if not relevant:
+        logger.info("检索链路: 召回%d父块，重排判定全部无关 → 兜底 (%.1fs)", len(candidates), time.time() - t0)
+        return [], True
+
+    # ---- 4. Token 预算截断（字符估算，中文约 1 字 ≈ 1 token） ----
+    budget = settings.rag_context_budget_chars
+    kept, used = [], 0
+    for c in hits:
+        cost = len(c["text"])
+        if used + cost > budget and kept:
+            break
+        kept.append(c)
+        used += cost
+
+    logger.info(
+        "检索链路: 召回%d父块 → 重排取%d → 预算内%d (%.1fs)",
+        len(candidates), len(hits), len(kept), time.time() - t0,
+    )
+    return kept, False
 
 
 def _truncate_history(messages: list[dict], budget: int = 2000) -> list[dict]:

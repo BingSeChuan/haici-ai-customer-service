@@ -29,7 +29,11 @@ class EmbeddingProvider(ABC):
 
 
 class LocalBgeProvider(EmbeddingProvider):
-    """本地 bge-small-zh-v1.5（24M 参数，~100MB）。首次加载会下载模型。"""
+    """本地 bge 系列模型（默认 bge-small-zh-v1.5，24M/768 维，CPU 友好）。
+
+    可通过 EMBEDDING_MODEL 配置切换为任意 bge 系列（如 bge-large-zh-v1.5 /
+    bge-m3），企业部署时按精度/算力权衡选择。
+    """
 
     def __init__(self):
         import os
@@ -38,8 +42,9 @@ class LocalBgeProvider(EmbeddingProvider):
         os.environ.setdefault("HF_ENDPOINT", settings.hf_endpoint)
         from sentence_transformers import SentenceTransformer
 
-        logger.info("加载本地 embedding 模型 bge-small-zh-v1.5 ...")
-        self._model = SentenceTransformer("BAAI/bge-small-zh-v1.5")
+        model_name = settings.embedding_model or "BAAI/bge-small-zh-v1.5"
+        logger.info("加载本地 embedding 模型 %s ...", model_name)
+        self._model = SentenceTransformer(model_name)
         self._dim = self._model.get_sentence_embedding_dimension()
         logger.info("embedding 模型加载完成，维度=%s", self._dim)
 

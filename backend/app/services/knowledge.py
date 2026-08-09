@@ -85,7 +85,7 @@ def _split_long_block(block: str, chunk_size: int, overlap: int) -> list[str]:
 
 
 def chunk_text(text: str, chunk_size: int | None = None, overlap: int | None = None) -> list[str]:
-    """按语义边界分块（章节单元独立成块）。
+    """按语义边界分块（章节单元独立成块）——生成"父块"。
 
     策略（关键设计决策，对应题目"注意力稀释"问题）：
     1. 先按空行拆段，再把段内以章节标记（一、/1./Q1：/第X条/##）开头的行
@@ -94,7 +94,11 @@ def chunk_text(text: str, chunk_size: int | None = None, overlap: int | None = N
        公司简介+专业版，模型容易漏读 —— 这是本项目实测定位到的核心质量问题；
     2. 章节单元独立成块（语义原子，不与其他段落合并）；
        普通段落按 chunk_size 预算合并相邻小块；
-    3. 超长块内部按句子切割，overlap 保留上一块尾部。
+    3. 超长块内部按句子切割，overlap 保留上一块尾部；
+    4. 短标题块（<20 字）并入下一块，避免纯关键词块虚高命中。
+
+    返回的父块再经 split_children() 切分为子块（检索单元），
+    构成 Parent-Child 两级结构（见 split_children 注释）。
     """
     chunk_size = chunk_size or settings.chunk_size
     overlap = overlap or settings.chunk_overlap
@@ -155,6 +159,36 @@ def chunk_text(text: str, chunk_size: int | None = None, overlap: int | None = N
     return [c for c in merged if c.strip()]
 
 
+def split_children(parents: list[str], child_size: int | None = None) -> list[tuple[str, str]]:
+    """Parent-Child 分块：父块切分为重叠子块，返回 [(parent, child), ...]。
+
+    企业级 RAG 的标准结构（解决检索精准度与上下文完整性的矛盾）：
+    - child：180 字左右的检索单元，向量索引它 —— 命中更精准（小片段语义集中，
+      不会被同块的其他知识点稀释相似度）；
+    - parent：完整语义单元（条款/FAQ 条目/版本介绍），喂给 LLM —— 上下文完整，
+      模型不会面对被切碎的片段；
+    - 检索命中任意 child 后，取其 parent 进 Prompt（同一 parent 的多个 child 去重）。
+    """
+    child_size = child_size or settings.child_chunk_size
+    overlap = max(20, child_size // 4)
+    pairs: list[tuple[str, str]] = []
+    for parent in parents:
+        if len(parent) <= child_size:
+            pairs.append((parent, parent))
+            continue
+        # 按句子边界切子块
+        sentences = re.split(r"(?<=[。！？；;.!?])\s*", parent)
+        cur = ""
+        for sent in sentences:
+            if len(cur) + len(sent) > child_size and cur:
+                pairs.append((parent, cur))
+                cur = cur[-overlap:]
+            cur += sent
+        if cur:
+            pairs.append((parent, cur))
+    return pairs
+
+
 def process_document_async(doc_id: int):
     """后台任务：解析 → 分块 → 向量化 → 更新状态。
 
@@ -169,31 +203,37 @@ def process_document_async(doc_id: int):
             return
         try:
             text = parse_document(doc.file_path, doc.doc_type)
-            chunks = chunk_text(text)
-            if not chunks:
+            parents = chunk_text(text)
+            if not parents:
                 raise ValueError("文档内容为空，无法解析")
 
+            # Parent-Child 分块：子块为检索单元（向量索引），父块为上下文单元（喂 LLM）
+            pairs = split_children(parents)
             provider = get_embedding_provider()
-            vectors = provider.embed(chunks)
+            child_texts = [child for _, child in pairs]
+            vectors = provider.embed(child_texts)
+            # 同一父块的多个子块共用 parent_id（用父块文本的哈希区分）
             metadatas = [
                 {
                     "doc_id": str(doc.id),
                     "doc_name": doc.name,
                     "knowledge_base_id": str(doc.knowledge_base_id),  # 多知识库路由依据
-                    "category": _detect_category(c),
+                    "category": _detect_category(child),
+                    "parent_id": str(hash(parent) & 0x7FFFFFFF),
+                    "parent_text": parent,  # 检索命中后直接取父块进 Prompt
                     "chunk_index": i,
                 }
-                for i, c in enumerate(chunks)
+                for i, (parent, child) in enumerate(pairs)
             ]
-            add_chunks(doc.id, chunks, metadatas, vectors)
+            add_chunks(doc.id, child_texts, metadatas, vectors)
 
             doc.status = "ready"
-            doc.chunk_count = len(chunks)
+            doc.chunk_count = len(pairs)
             doc.error_msg = ""
             from .rag import invalidate_bm25  # 局部导入避免循环依赖
 
             invalidate_bm25()  # 新文档入索引，保证增量更新对关键词检索可见
-            logger.info("文档 %s 向量化完成: %d 个分块", doc.name, len(chunks))
+            logger.info("文档 %s 向量化完成: %d 个子块 / %d 个父块", doc.name, len(pairs), len(parents))
         except Exception as e:
             logger.exception("文档 %s 处理失败", doc.name)
             doc.status = "failed"

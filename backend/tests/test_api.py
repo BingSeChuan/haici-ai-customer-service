@@ -148,7 +148,7 @@ def test_chat_stream_event_sequence(api_client, random_account):
 
 
 def test_empty_retrieval_fallback(api_client, random_account):
-    """检索为空：必须返回兜底话术而非编造。"""
+    """检索为空/无关：必须拒绝回答而非编造（兜底话术或 LLM 声明无关）。"""
     token = register(api_client, random_account)
     resp = api_client.post(
         "/api/chat/stream",
@@ -156,7 +156,9 @@ def test_empty_retrieval_fallback(api_client, random_account):
         headers=auth(token),
     )
     assert resp.status_code == 200
-    assert "抱歉" in resp.text or "未找到" in resp.text
+    # 不接受编造：回答必须含拒绝语气（兜底话术 或 LLM 声明"暂无/无法"）
+    deny_markers = ["抱歉", "未找到", "暂无", "无法", "没有找到", "没有相关"]
+    assert any(m in resp.text for m in deny_markers), f"疑似编造: {resp.text[:120]}"
 
 
 def test_feedback_flow(api_client, random_account):
