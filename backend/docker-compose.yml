@@ -4,10 +4,12 @@ services:
     container_name: haici_mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: haici_root_2026
+      # 修复 3：密码通过环境变量注入，默认值仅用于本地开发；
+      # 生产环境必须显式设置（export MYSQL_ROOT_PASSWORD=... MYSQL_PASSWORD=...）
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-haici_root_2026}
       MYSQL_DATABASE: haici_cs
       MYSQL_USER: haici
-      MYSQL_PASSWORD: haici_2026
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-haici_2026}
       TZ: Asia/Shanghai
     ports:
       - "3306:3306"

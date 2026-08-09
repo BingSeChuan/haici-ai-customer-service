@@ -13,6 +13,7 @@
 4. 画像冲突检测：新旧值矛盾时 LLM 裁决覆盖，杜绝自相矛盾（题 13）
 5. 防提示词注入：记忆只接受 LLM 提取的结构化 JSON，原始用户指令不直接入库（题 17）
 """
+import asyncio
 import logging
 import uuid
 from datetime import datetime, timedelta
@@ -80,15 +81,22 @@ def is_important_msg(content: str) -> bool:
     return any(w in content for w in IMPORTANT_HINT_WORDS)
 
 
+_memory_col = None
+
+
 def _memory_collection():
-    import chromadb
+    """修复 6：模块级缓存客户端与集合（与 vector_store.py 全局缓存风格一致）。"""
+    global _memory_col
+    if _memory_col is None:
+        import chromadb
 
-    from ..config import settings
+        from ..config import settings
 
-    client = chromadb.PersistentClient(path=settings.chroma_dir)
-    return client.get_or_create_collection(
-        MEMORY_COLLECTION, metadata={"hnsw:space": "cosine"}
-    )
+        client = chromadb.PersistentClient(path=settings.chroma_dir)
+        _memory_col = client.get_or_create_collection(
+            MEMORY_COLLECTION, metadata={"hnsw:space": "cosine"}
+        )
+    return _memory_col
 
 
 async def extract_memory(conversation: str) -> dict:
@@ -132,12 +140,18 @@ async def _dedup_check(content: str, existing: list[str]) -> str:
 
 
 async def store_memory(db: Session, user_id: int, session_id: int, memory_type: str, content: str, importance: int):
-    """写入记忆：向量化入 Chroma + 元数据入 MySQL，带去重。"""
+    """写入记忆：向量化入 Chroma + 元数据入 MySQL，带去重。
+
+    修复 2：vector_id（Chroma ID）落库到 UserMemory.vector_id，
+    遗忘时按 vector_id 精确删除向量（此前用 MySQL int id 永远删不掉）。
+    """
     # 题 11：写入前检索相似记忆
     provider = get_embedding_provider()
-    vector = provider.embed([content])[0]
+    vector = await asyncio.to_thread(provider.embed, [content])
+    vector = vector[0]
     col = _memory_collection()
-    hits = col.query(
+    hits = await asyncio.to_thread(
+        col.query,
         query_embeddings=[vector],
         n_results=3,
         where={"user_id": str(user_id)},
@@ -150,16 +164,25 @@ async def store_memory(db: Session, user_id: int, session_id: int, memory_type: 
         return
 
     memory_id = f"mem_{uuid.uuid4().hex}"
-    col.upsert(
+    await asyncio.to_thread(
+        col.upsert,
         ids=[memory_id],
         documents=[content],
         embeddings=[vector],
-        metadatas=[{"user_id": str(user_id), "session_id": str(session_id), "memory_id": memory_id}],
+        metadatas=[
+            {
+                "user_id": str(user_id),
+                "session_id": str(session_id),
+                "memory_id": memory_id,
+                "is_active": "true",
+            }
+        ],
     )
     db.add(
         UserMemory(
             user_id=user_id,
             session_id=session_id,
+            vector_id=memory_id,
             memory_type=memory_type,
             content=content,
             importance=importance,
@@ -235,10 +258,23 @@ async def retrieve_memory_context(db: Session, user_id: int, question: str, top_
 
     # 情景记忆：向量检索 + user_id 硬过滤（题 4/8 防串扰），再经 LLM 挑选
     try:
+        # 修复 2b：已遗忘（is_active=False）记忆的 vector_id 集合，检索后过滤兜底
+        # （主机制是 forget 时删除向量；此过滤保证向量删除失败时也不泄露）
+        active_vector_ids = set(
+            db.scalars(
+                select(UserMemory.vector_id).where(
+                    UserMemory.user_id == user_id,
+                    UserMemory.is_active.is_(True),
+                    UserMemory.vector_id.is_not(None),
+                )
+            ).all()
+        )
         provider = get_embedding_provider()
-        vector = provider.embed([question])[0]
+        vector = await asyncio.to_thread(provider.embed, [question])
+        vector = vector[0]
         col = _memory_collection()
-        hits = col.query(
+        hits = await asyncio.to_thread(
+            col.query,
             query_embeddings=[vector],
             n_results=top_k,
             where={"user_id": str(user_id)},  # 硬过滤：杜绝越权召回他人记忆
@@ -250,7 +286,8 @@ async def retrieve_memory_context(db: Session, user_id: int, question: str, top_
             candidates = [
                 {"id": i, "text": d}
                 for i, d in enumerate(memory_docs)
-                if 1 - (hits["distances"][0][i]) >= 0.35  # 阈值拦截（题 8）
+                if memory_ids[i] in active_vector_ids  # 已遗忘记忆不召回（修复 2b）
+                and 1 - (hits["distances"][0][i]) >= 0.35  # 阈值拦截（题 8）
             ]
             if candidates:
                 # LLM 挑选最相关的 ≤3 条（注意力聚焦，题 18）
@@ -293,17 +330,21 @@ async def retrieve_memory_context(db: Session, user_id: int, question: str, top_
 
 
 def forget_memory(db: Session, memory_id: int, user_id: int) -> bool:
-    """遗忘机制（题 12）：软删除 is_active=False，向量侧删除。"""
+    """遗忘机制（题 12/修复 2）：软删除 is_active=False + 按 vector_id 删除向量。
+
+    向量删除失败只记日志不阻断软删除（DB 侧 is_active 仍保证检索过滤）。
+    """
     mem = db.get(UserMemory, memory_id)
     if mem is None or mem.user_id != user_id:
         return False
     mem.is_active = False
     db.commit()
-    try:
-        col = _memory_collection()
-        col.delete(where={"memory_id": str(memory_id)})
-    except Exception as e:
-        logger.warning("向量记忆删除失败: %s", e)
+    if mem.vector_id:
+        try:
+            col = _memory_collection()
+            col.delete(ids=[mem.vector_id])  # 按 Chroma 真实 ID 删除（修复 2a）
+        except Exception as e:
+            logger.warning("向量记忆删除失败（软删除仍生效）: %s", e)
     return True
 
 

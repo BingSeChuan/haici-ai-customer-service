@@ -212,14 +212,17 @@ def process_document_async(doc_id: int):
             provider = get_embedding_provider()
             child_texts = [child for _, child in pairs]
             vectors = provider.embed(child_texts)
-            # 同一父块的多个子块共用 parent_id（用父块文本的哈希区分）
+            # 同一父块的多个子块共用 parent_id（修复 8：md5 跨进程稳定，
+            # 替代内建 hash() —— hash 对 str 每次进程加盐，跨进程/重启不稳定）
+            import hashlib
+
             metadatas = [
                 {
                     "doc_id": str(doc.id),
                     "doc_name": doc.name,
                     "knowledge_base_id": str(doc.knowledge_base_id),  # 多知识库路由依据
                     "category": _detect_category(child),
-                    "parent_id": str(hash(parent) & 0x7FFFFFFF),
+                    "parent_id": hashlib.md5(parent.encode("utf-8")).hexdigest(),
                     "parent_text": parent,  # 检索命中后直接取父块进 Prompt
                     "chunk_index": i,
                 }

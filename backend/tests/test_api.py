@@ -122,6 +122,40 @@ def test_knowledge_doc_lifecycle(api_client, random_account):
     assert resp.status_code == 404
 
 
+def test_unauthorized_knowledge_base_access(api_client, random_account):
+    """越权防护：用户 A 用用户 B 的知识库 id 提问必须 404（修复 1）。"""
+    import random
+    import string
+
+    # 用户 A（发起者）与用户 B（知识库所有者）
+    account_b = f"kb_owner_{''.join(random.choices(string.digits, k=6))}@pytest.com"
+    token_a = register(api_client, random_account)
+    token_b = register(api_client, account_b)
+
+    # B 创建知识库
+    resp = api_client.post(
+        "/api/knowledge/bases", json={"name": "B的私有库"}, headers=auth(token_b)
+    )
+    assert resp.status_code == 200
+    kb_id = resp.json()["id"]
+
+    # A 用 B 的知识库 id 提问 → 404（越权拦截）
+    resp = api_client.post(
+        "/api/chat/stream",
+        json={"question": "标准版多少钱？", "knowledge_base_id": kb_id},
+        headers=auth(token_a),
+    )
+    assert resp.status_code == 404, f"越权未拦截: {resp.status_code}"
+
+    # 不存在/不属于自己的知识库 id → 404（与 knowledge.py 同风格）
+    resp = api_client.post(
+        "/api/chat/stream",
+        json={"question": "标准版多少钱？", "knowledge_base_id": 999999},
+        headers=auth(token_a),
+    )
+    assert resp.status_code == 404
+
+
 def test_admin_permission(api_client, random_account):
     """非管理员访问后台必须 403。"""
     token = register(api_client, random_account)

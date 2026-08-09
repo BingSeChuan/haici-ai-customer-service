@@ -294,8 +294,9 @@ async def retrieve_chunks(
     if expanded != question:
         logger.info("查询改写: %s → %s", question, expanded)
 
-    queries = {question, expanded}
-    vectors = provider.embed(list(queries))
+    # 修复 9：确定顺序的查询列表（set 与 zip 对齐顺序脆弱，且可能重复去重）
+    queries = list(dict.fromkeys([question, expanded]))
+    vectors = provider.embed(queries)
 
     # ---- 1. 多路召回（子块向量 × 2 查询 + 父块 BM25 × 2 查询） ----
     merged: dict[str, dict] = {}  # parent_id -> 父块检索结果（相似度取子块最高）

@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     mysql_database: str = "haici_cs"
 
     # JWT
+    # 修复 3：默认值仅为提示性文本，生产环境必须通过 .env 的 JWT_SECRET 覆盖
     jwt_secret: str = "change-me-to-a-long-random-string"
     jwt_expire_minutes: int = 10080  # 7 天
 

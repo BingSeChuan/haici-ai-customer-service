@@ -59,37 +59,57 @@ def _require_admin(user: User):
 
 @router.get("/sessions")
 def admin_sessions(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    """全量会话记录（加分项）：所有用户的会话列表，含用户信息与消息摘要。"""
+    """全量会话记录（加分项）：所有用户的会话列表，含用户信息与消息摘要。
+
+    修复 5：一次聚合查询替代循环内 N×2 次独立查询——
+    消息数（GROUP BY）与最后一条用户消息（MAX(id) 子查询）均提前聚合。
+    """
     _require_admin(user)
+    # 每个会话的消息数（一次性聚合）
+    count_subq = (
+        select(Message.session_id, func.count(Message.id).label("cnt"))
+        .group_by(Message.session_id)
+        .subquery()
+    )
+    # 每个会话最后一条用户消息（MAX(id) 子查询 + join 取内容）
+    last_id_subq = (
+        select(Message.session_id, func.max(Message.id).label("mid"))
+        .where(Message.role == "user")
+        .group_by(Message.session_id)
+        .subquery()
+    )
+    last_msg_subq = (
+        select(Message.session_id, Message.content)
+        .join(last_id_subq, Message.id == last_id_subq.c.mid)
+        .subquery()
+    )
+
     rows = db.execute(
-        select(ChatSession, User)
+        select(
+            ChatSession,
+            User,
+            func.coalesce(count_subq.c.cnt, 0),
+            func.coalesce(last_msg_subq.c.content, ""),
+        )
         .join(User, ChatSession.user_id == User.id)
+        .outerjoin(count_subq, count_subq.c.session_id == ChatSession.id)
+        .outerjoin(last_msg_subq, last_msg_subq.c.session_id == ChatSession.id)
         .order_by(ChatSession.updated_at.desc())
         .limit(500)
     ).all()
-    sessions = []
-    for s, u in rows:
-        msg_count = db.scalar(
-            select(func.count(Message.id)).where(Message.session_id == s.id)
-        ) or 0
-        last_msg = db.scalar(
-            select(Message.content)
-            .where(Message.session_id == s.id, Message.role == "user")
-            .order_by(Message.id.desc())
-        ) or ""
-        sessions.append(
-            {
-                "id": s.id,
-                "user": {"id": u.id, "nickname": u.nickname, "account": u.phone or u.email or ""},
-                "title": s.title,
-                "intent": s.intent,
-                "message_count": msg_count,
-                "last_question": last_msg[:80],
-                "created_at": s.created_at.isoformat(),
-                "updated_at": s.updated_at.isoformat(),
-            }
-        )
-    return sessions
+    return [
+        {
+            "id": s.id,
+            "user": {"id": u.id, "nickname": u.nickname, "account": u.phone or u.email or ""},
+            "title": s.title,
+            "intent": s.intent,
+            "message_count": msg_count,
+            "last_question": (last_msg or "")[:80],
+            "created_at": s.created_at.isoformat(),
+            "updated_at": s.updated_at.isoformat(),
+        }
+        for s, u, msg_count, last_msg in rows
+    ]
 
 
 @router.get("/sessions/{session_id}/messages", response_model=list[MessageOut])

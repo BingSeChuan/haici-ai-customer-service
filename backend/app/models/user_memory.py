@@ -20,6 +20,7 @@ class UserMemory(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     session_id: Mapped[int] = mapped_column(ForeignKey("sessions.id", ondelete="CASCADE"), index=True)
+    vector_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)  # Chroma 向量 ID（遗忘时按此删除）
     memory_type: Mapped[str] = mapped_column(String(20), default="fact")  # fact/preference/event
     content: Mapped[str] = mapped_column(Text)
     importance: Mapped[int] = mapped_column(Integer, default=3)

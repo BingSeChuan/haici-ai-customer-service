@@ -78,7 +78,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# 本地开发允许所有来源；生产环境应收紧
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],

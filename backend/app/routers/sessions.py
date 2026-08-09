@@ -41,11 +41,20 @@ def submit_feedback(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    """对 AI 回答点赞 / 踩（可选文字）。同一消息重复提交则覆盖。"""
-    msg = db.get(Message, message_id)
-    if msg is None or msg.session_id not in {
-        s.id for s in db.scalars(select(ChatSession).where(ChatSession.user_id == user.id)).all()
-    }:
+    """对 AI 回答点赞 / 踩（可选文字）。同一消息重复提交则覆盖。
+
+    修复 10：归属校验改用 EXISTS 子查询（原实现全量加载用户会话再判断）。
+    """
+    from sqlalchemy import exists
+
+    owned = exists(
+        select(ChatSession.id).where(
+            ChatSession.id == Message.session_id,
+            ChatSession.user_id == user.id,
+        )
+    )
+    msg = db.scalar(select(Message).where(Message.id == message_id, owned))
+    if msg is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="消息不存在")
 
     existing = db.scalar(

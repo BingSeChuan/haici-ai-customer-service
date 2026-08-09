@@ -8,6 +8,7 @@ SSE 事件协议（前端按此解析）：
   event: done      data: {"message_id":2}
   event: error     data: {"detail":"..."}
 """
+import asyncio
 import json
 import logging
 
@@ -31,6 +32,23 @@ from ..services.usage import check_and_increment
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/chat", tags=["对话"])
+
+# 修复 7：后台任务集合（持有引用防 GC 丢弃；done 时自动移除）
+_memory_tasks: set[asyncio.Task] = set()
+
+
+async def _memory_pipeline(user_id: int, session_id: int, question: str, answer: str):
+    """L1 记忆提取后台任务：独立 DB 会话，失败静默（不影响主链路）。"""
+    from ..database import SessionLocal
+    from ..services.memory import process_conversation_memory
+
+    mdb = SessionLocal()
+    try:
+        await process_conversation_memory(mdb, user_id, session_id, question, answer)
+    except Exception:
+        logger.exception("记忆提取后台任务异常")
+    finally:
+        mdb.close()
 
 
 def _sse(event: str, data: dict) -> str:
@@ -78,6 +96,12 @@ async def chat_stream(
     user_msg.intent = intent
     db.add_all([session, user_msg])
     db.commit()
+
+    # ---- 越权防护：指定知识库必须属于当前用户（与 knowledge.py 上传校验同风格） ----
+    if body.knowledge_base_id is not None:
+        target_kb = db.get(KnowledgeBase, body.knowledge_base_id)
+        if target_kb is None or target_kb.user_id != user.id:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="知识库不存在")
 
     # ---- 向量检索（阈值过滤后可能为空 → 兜底） ----
     # 多知识库路由（加分项）：指定库则只检索该库；未指定则全量检索自动路由
@@ -166,19 +190,14 @@ async def chat_stream(
             yield _sse("done", {"message_id": assistant_id})
 
             # ---- L1 记忆提取（异步，不阻塞流；题 5 异步卸载思路） ----
-            import asyncio
-
-            async def _memory_pipeline():
-                from ..database import SessionLocal
-
-                mdb = SessionLocal()
-                try:
-                    await process_conversation_memory(mdb, user.id, session.id, question, answer)
-                finally:
-                    mdb.close()
-
-            asyncio.create_task(_memory_pipeline())
-        except Exception as e:
+            # 修复 7：任务集合持有引用防止被 GC 丢弃；完成后自动移除
+            task = asyncio.create_task(
+                _memory_pipeline(user_id=user.id, session_id=session.id, question=question, answer=answer)
+            )
+            _memory_tasks.add(task)
+            task.add_done_callback(_memory_tasks.discard)
+        except Exception:
+            # 修复 4：完整异常只记日志，客户端只收通用文案（不泄露内部实现）
             logger.exception("SSE 流异常")
             # 已累积的内容也落库，避免用户白问
             if answer_parts and assistant_id is None:
@@ -202,7 +221,7 @@ async def chat_stream(
                     gen_db.commit()
                 except Exception:
                     gen_db.rollback()
-            yield _sse("error", {"detail": str(e)})
+            yield _sse("error", {"detail": "服务暂时不可用，请稍后重试"})
         finally:
             gen_db.close()
 
