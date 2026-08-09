@@ -31,3 +31,6 @@ backend/.playwright-cli/
 
 # Playwright 测试残留
 .playwright-cli/
+
+# Word 临时锁文件
+~$*
