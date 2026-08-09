@@ -3,10 +3,11 @@ import { clearAuth, getStoredUser, getToken } from "./api/client";
 import type { User } from "./api/types";
 import ChatPage from "./pages/ChatPage";
 import KnowledgePage from "./pages/KnowledgePage";
+import MemoryPage from "./pages/MemoryPage";
 import AdminPage from "./pages/AdminPage";
 import LoginPage from "./pages/LoginPage";
 
-type Tab = "chat" | "knowledge" | "admin";
+type Tab = "chat" | "knowledge" | "memory" | "admin";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(getStoredUser());
@@ -45,6 +46,12 @@ export default function App() {
           >
             知识库
           </button>
+          <button
+            className={tab === "memory" ? "tab active" : "tab"}
+            onClick={() => setTab("memory")}
+          >
+            我的记忆
+          </button>
           {user.is_admin && (
             <button
               className={tab === "admin" ? "tab active" : "tab"}
@@ -65,6 +72,7 @@ export default function App() {
       <main className="content">
         {tab === "chat" && <ChatPage />}
         {tab === "knowledge" && <KnowledgePage />}
+        {tab === "memory" && <MemoryPage />}
         {tab === "admin" && user.is_admin && <AdminPage />}
       </main>
     </div>

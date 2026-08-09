@@ -661,6 +661,48 @@ button {
   padding: 8px;
 }
 
+/* 记忆页 */
+.profile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.profile-key {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.profile-value {
+  color: var(--text);
+}
+
+.mem-fact {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.mem-preference {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.mem-event {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
 /* ---------- 管理后台 ---------- */
 .admin-page {
   padding: 24px 32px;

@@ -363,8 +363,10 @@ def _truncate_history(messages: list[dict], budget: int = 2000) -> list[dict]:
     return list(reversed(kept))
 
 
-def build_rag_messages(question: str, chunks: list[dict], history: list[dict]) -> list[dict]:
-    """Prompt 拼接：System Prompt + 编号检索片段 + 截断历史 + 用户问题。"""
+def build_rag_messages(
+    question: str, chunks: list[dict], history: list[dict], memory_context: str = ""
+) -> list[dict]:
+    """Prompt 拼接：System Prompt + 用户记忆（画像/历史偏好）+ 编号检索片段 + 历史 + 问题。"""
     # 片段字符预算：超出则优先保留规则类/高相似度片段
     context_parts, used = [], 0
     for i, chunk in enumerate(chunks, start=1):
@@ -382,8 +384,17 @@ def build_rag_messages(question: str, chunks: list[dict], history: list[dict]) -
         ) + "\n\n"
     user_content += f"【当前问题】\n{question}"
 
+    system_prompt = SYSTEM_PROMPT
+    if memory_context:
+        # 记忆注入：画像与历史偏好置于 System Prompt 末尾，供个性化回答参考
+        # （记忆只作参考，不得替代知识库事实——防止记忆污染影响规则类回答）
+        system_prompt += (
+            "\n\n## 用户记忆（个性化参考，仅用于了解用户背景；"
+            "回答知识问题时仍以知识库上下文为准，不得因记忆编造规则）\n"
+            + memory_context
+        )
     return [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": f"【知识库上下文】\n" + "\n\n".join(context_parts) + f"\n\n{user_content}"},
     ]
 

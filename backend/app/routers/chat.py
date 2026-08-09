@@ -96,6 +96,13 @@ async def chat_stream(
                 routed_kb_name = kb_obj.name
     history = await get_history(db, session.id)
 
+    # ---- 长期记忆读取（题 15/18）：问答前注入用户画像与历史偏好 ----
+    from ..services.memory import process_conversation_memory, retrieve_memory_context
+
+    memory_context = await retrieve_memory_context(db, user.id, question)
+    if memory_context:
+        logger.info("注入用户记忆上下文（%d 字）", len(memory_context))
+
     async def event_stream():
         # 生成器内使用独立会话（请求会话在响应结束后才关闭，但长流中自建更稳妥）
         gen_db = SessionLocal()
@@ -116,8 +123,8 @@ async def chat_stream(
                 answer_parts.append(fallback)
                 yield _sse("delta", {"content": fallback})
             else:
-                # ---- 拼接 Prompt 并流式调用 LLM ----
-                rag_messages = build_rag_messages(question, chunks, history)
+                # ---- 拼接 Prompt（含用户记忆）并流式调用 LLM ----
+                rag_messages = build_rag_messages(question, chunks, history, memory_context)
                 async for delta in _chat_with_retry(rag_messages):
                     answer_parts.append(delta)
                     yield _sse("delta", {"content": delta})
@@ -157,6 +164,20 @@ async def chat_stream(
             yield _sse("followups", {"suggestions": suggestions})
 
             yield _sse("done", {"message_id": assistant_id})
+
+            # ---- L1 记忆提取（异步，不阻塞流；题 5 异步卸载思路） ----
+            import asyncio
+
+            async def _memory_pipeline():
+                from ..database import SessionLocal
+
+                mdb = SessionLocal()
+                try:
+                    await process_conversation_memory(mdb, user.id, session.id, question, answer)
+                finally:
+                    mdb.close()
+
+            asyncio.create_task(_memory_pipeline())
         except Exception as e:
             logger.exception("SSE 流异常")
             # 已累积的内容也落库，避免用户白问

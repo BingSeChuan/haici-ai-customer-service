@@ -75,6 +75,20 @@ export interface KnowledgeBaseItem {
   created_at: string;
 }
 
+export interface ProfileItem {
+  key: string;
+  value: string;
+  updated_at: string;
+}
+
+export interface MemoryItem {
+  id: number;
+  memory_type: "fact" | "preference" | "event";
+  content: string;
+  importance: number;
+  created_at: string;
+}
+
 /** 意图徽标颜色 */
 export const INTENT_COLORS: Record<string, string> = {
   产品咨询: "#2563eb",

@@ -3,7 +3,9 @@ import type {
   AdminStats,
   DocumentItem,
   KnowledgeBaseItem,
+  MemoryItem,
   MessageItem,
+  ProfileItem,
   SessionItem,
   StreamHandlers,
   TokenResponse,
@@ -125,6 +127,13 @@ export const knowledgeApi = {
       }
     );
   },
+};
+
+// ---------- 长期记忆 ----------
+export const memoryApi = {
+  get: () => request<{ profiles: ProfileItem[]; memories: MemoryItem[] }>("/api/memory"),
+  remove: (memoryId: number) =>
+    request<{ ok: boolean }>(`/api/memory/${memoryId}`, { method: "DELETE" }),
 };
 
 // ---------- 管理后台 ----------

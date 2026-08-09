@@ -183,7 +183,61 @@ CATEGORY_BOOST = {"rule": 0.25, "faq": 0.10, "product": 0.0, "other": 0.0}
 3. **反幻觉测试**：提问知识库不存在的内容（如"今天上海天气"），验证触发兜底话术而非编造——LLM 重排的 `relevant=false` 判定让无关问题在进入 Prompt 前就被拦截（实测上下文块数=0）；
 4. **消融对比**：对比 5 个测试问题在"纯向量"与"混合检索+软加成"下的检索 Top-5 命中率与回答正确性（详见 项目说明.md 第 6 节）。
 
-## 6. 迭代记录（关键工程决策）
+## 6. Agent 记忆系统（对齐 Mem0 / L0-L3 分层 / 2026 企业级实践）
+
+> 为什么 Agent 不能只靠 RAG 和上下文窗口：上下文窗口是"伪记忆"——有限、昂贵、塞满即引发注意力稀释与上下文腐烂；RAG 是"无状态"外部检索，不感知用户身份与历史交互。记忆系统让 Agent 从"被动文本生成器"进化为"具备持续学习能力的自主协作者"。
+
+### 6.1 分层架构（L0-L3）
+
+```mermaid
+flowchart TD
+    L0[L0 原始对话<br/>MySQL messages 全量保存] -->|LLM 提取| L1[L1 原子记忆<br/>fact/preference/event<br/>Chroma + user_id 硬过滤]
+    L1 -->|会话关联| L2[L2 场景分块<br/>按 session 带上下文检索]
+    L1 -->|结构化抽取| L3[L3 用户画像<br/>UserProfile KV<br/>Upsert + 冲突检测]
+    L0 -->|滑动窗口+摘要| WM[短期记忆<br/>最近6轮 + 重要性分级 + 超长压缩]
+    WM -->|每次对话| L1
+```
+
+| 层 | 存储 | 本系统实现 |
+|----|------|-----------|
+| L0 原始对话 | MySQL `messages` | ✅ 全量保存（确保不丢） |
+| L1 原子记忆 | Chroma `haici_user_memory` 集合 + MySQL `user_memories` 元数据 | ✅ `memory.extract_memory`：LLM 提取事实/偏好/事件 + 重要性 1-5 |
+| L2 场景分块 | 记忆带 `session_id` 元数据 | ✅ 会话关联检索 |
+| L3 用户画像 | MySQL `user_profiles`（结构化 KV） | ✅ `memory.upsert_profile`：冲突检测覆盖 |
+
+### 6.2 读写与治理链路
+
+**写入链路**（对话落库后异步执行，不阻塞流）：`LLM 提取 → 相似度去重（Top-3 + LLM 裁决 merge/skip/keep）→ 向量化入库 + 元数据落 MySQL → 画像 Upsert（冲突检测）`
+
+**读取链路**（问答前）：`画像直取（最新值永远进 Prompt）→ 情景记忆向量检索（where user_id 硬过滤 + 0.35 阈值拦截）→ LLM 挑选最相关 ≤3 条 → 注入 System Prompt【用户记忆】区`
+
+**治理链路**：`遗忘（is_active 软删除 + 向量侧清除，前端"遗忘"按钮）→ 类型白名单（仅 fact/preference/event，防注入）→ 重要性分级（★1-5，排序与遗忘优先级）`
+
+### 6.3 关键设计决策（对应 22 题）
+
+| 工程问题 | 设计决策 | 实现位置 |
+|----------|----------|----------|
+| 短期记忆怎么做（题 3） | 滑动窗口（最近 6 轮）+ 递归摘要（超长 LLM 压缩）+ **重要性分级**（含"必须/记住/我的"等指令词的消息永不丢） | `rag.compress_history` / `memory.is_important_msg` |
+| 并发防串扰（题 4） | 短期记忆绑定 session_id；长期记忆检索强制 `where={"user_id": ...}` 元数据硬过滤 | `memory.retrieve_memory_context` |
+| Token 暴增应急（题 5） | 流式响应降 TTFT；记忆提取**异步执行**不阻塞主链路；LLM 调用超时+重试 | `chat.py` `asyncio.create_task` |
+| 长期治理（题 6） | 记忆分层卸载（长文本沉淀向量库，Prompt 只放检索摘要）；动态 Context 组装（按 query 按需召回） | `memory.retrieve_memory_context` |
+| 记忆存哪（题 7） | "向量 + 结构化"混合：情景记忆向量库（模糊语义），画像 KV（精确 Upsert） | 双存储 |
+| 检索答非所问（题 8） | 元数据硬过滤 + 混合检索（RRF）+ **LLM 重排** + 相似度阈值拦截 | 4.1 节检索链路 |
+| 记忆混乱治理（题 9） | L0-L3 四层渐进沉淀（见 6.1） | 分层实现 |
+| 写入重复（题 11） | 写入前 Top-3 相似检索 + LLM 裁决 merge/skip/keep | `memory._dedup_check` |
+| 遗忘机制（题 12） | `is_active` 软删除 + `expires_at` 过期 + 重要性分级决定遗忘优先级 | `memory.forget_memory` |
+| 用户修改信息（题 13） | 画像 KV Upsert + **LLM 冲突检测**（overwrite/keep/merge），旧值矛盾即覆盖并记录来源会话 | `memory.upsert_profile` |
+| 重启不丢记忆（题 15） | 短期记忆存 DB（sessions/messages 持久化）；长期记忆向量库 + 关系库双持久化 | MySQL + Chroma |
+| 防提示词注入（题 17） | 记忆只接受 **LLM 提取的结构化 JSON**（类型白名单），原始用户指令不直接入库；记忆注入 Prompt 时标注"仅供个性化参考，不得替代知识库事实" | `memory.EXTRACT_PROMPT` / 白名单 |
+| 多轮不跑偏（题 18） | 画像（目标锚定）恒在 Prompt 头部；记忆按 query 挑选 ≤3 条（注意力聚焦），屏蔽无关历史分支 | `memory.MEMORY_CONTEXT_PROMPT` |
+
+### 6.4 记忆系统的工程取舍（文档化）
+
+- **记忆 vs 知识库的优先级**：记忆注入区明确标注"回答知识问题时仍以知识库上下文为准，不得因记忆编造规则"——防止记忆污染影响规则类回答（题 14 的合规风险在 Prompt 层兜底）；
+- **遗忘默认可逆**：软删除（is_active=False）而非物理删除，向量侧同步清除保证检索不可见；需要"被遗忘权"合规时升级为物理删除（题 12/14）；
+- **冷热分离（题 10）预留**：当前规模单集合足够；文档说明扩容路径——按 user_id Hash 分片路由 + 30 天以上记忆归档冷存储（设计预留，代码留 metadata 时间字段支持）。
+
+## 7. 迭代记录（关键工程决策）
 
 本节记录构建 RAG 链路中通过实测发现并修正的问题，是"对 AI 生成代码的优化"的完整记录：
 

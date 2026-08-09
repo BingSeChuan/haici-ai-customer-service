@@ -327,7 +327,47 @@ GET /api/admin/sessions/{session_id}/messages
 
 ---
 
-## 6. 通用错误码
+## 6. 长期记忆
+
+### 6.1 我的记忆（画像 + 情景记忆）
+
+```
+GET /api/memory
+```
+
+响应：
+
+```json
+{
+  "profiles": [
+    { "key": "company_size", "value": "20人", "updated_at": "2026-08-10T00:00:00" },
+    { "key": "industry", "value": "电商", "updated_at": "2026-08-10T00:00:00" }
+  ],
+  "memories": [
+    {
+      "id": 3,
+      "memory_type": "preference",
+      "content": "用户不喜欢邮件通知，只用短信通知",
+      "importance": 4,
+      "created_at": "2026-08-10T00:00:00"
+    }
+  ]
+}
+```
+
+说明：记忆由系统在每次问答后异步从对话中提取（L1 原子记忆），画像为结构化 KV（L3，Upsert+冲突检测）；情景记忆按 user_id 硬隔离。
+
+### 6.2 遗忘记忆（遗忘机制）
+
+```
+DELETE /api/memory/{memory_id}
+```
+
+软删除（is_active=false）+ 向量侧同步清除。响应：`{"ok": true}`。
+
+---
+
+## 7. 通用错误码
 
 | 状态码 | 含义 |
 |--------|------|

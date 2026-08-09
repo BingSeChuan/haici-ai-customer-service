@@ -6,6 +6,7 @@ from .feedback import Feedback
 from .document import Document
 from .knowledge_base import KnowledgeBase
 from .daily_usage import DailyUsage
+from .user_memory import UserMemory, UserProfile
 
 __all__ = [
     "User",
@@ -15,4 +16,6 @@ __all__ = [
     "Document",
     "KnowledgeBase",
     "DailyUsage",
+    "UserMemory",
+    "UserProfile",
 ]

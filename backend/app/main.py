@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import admin, auth, chat, knowledge, sessions
+from .routers import admin, auth, chat, knowledge, memory, sessions
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
@@ -92,6 +92,7 @@ app.include_router(knowledge.router)
 app.include_router(chat.router)
 app.include_router(sessions.router)
 app.include_router(admin.router)
+app.include_router(memory.router)
 
 
 @app.get("/")
