@@ -1,0 +1,902 @@
+- generic [ref=e15]:
+  - banner [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]: 🌲
+      - generic [ref=e19]: 云杉智能客服
+    - navigation [ref=e20]:
+      - button "智能对话" [ref=e21] [cursor=pointer]
+      - button "知识库" [ref=e22] [cursor=pointer]
+      - button "管理后台" [active] [ref=e23] [cursor=pointer]
+    - generic [ref=e24]:
+      - generic [ref=e25]: 管
+      - generic [ref=e26]: 管理员
+      - button "退出" [ref=e27] [cursor=pointer]
+  - main [ref=e28]:
+    - generic [ref=e410]:
+      - heading "管理后台" [level=2] [ref=e411]
+      - generic [ref=e412]:
+        - generic [ref=e413]:
+          - generic [ref=e414]: "24"
+          - generic [ref=e415]: 注册用户
+        - generic [ref=e416]:
+          - generic [ref=e417]: "99"
+          - generic [ref=e418]: 会话总数
+        - generic [ref=e419]:
+          - generic [ref=e420]: "86"
+          - generic [ref=e421]: 消息总数
+        - generic [ref=e422]:
+          - generic [ref=e423]: "6"
+          - generic [ref=e424]: 知识文档
+      - generic [ref=e425]:
+        - heading "用户反馈" [level=3] [ref=e426]
+        - generic [ref=e427]:
+          - generic [ref=e428]: 👍 点赞 6
+          - generic [ref=e432]: 👎 踩 0
+      - generic [ref=e435]:
+        - heading "近 7 日问答量" [level=3] [ref=e436]
+        - img [ref=e437]:
+          - generic [ref=e438]:
+            - generic [ref=e440]: 08-03
+            - generic [ref=e441]: "0"
+          - generic [ref=e442]:
+            - generic [ref=e444]: 08-04
+            - generic [ref=e445]: "0"
+          - generic [ref=e446]:
+            - generic [ref=e448]: 08-05
+            - generic [ref=e449]: "0"
+          - generic [ref=e450]:
+            - generic [ref=e452]: 08-06
+            - generic [ref=e453]: "0"
+          - generic [ref=e454]:
+            - generic [ref=e456]: 08-07
+            - generic [ref=e457]: "0"
+          - generic [ref=e458]:
+            - generic [ref=e460]: 08-08
+            - generic [ref=e461]: "0"
+          - generic [ref=e462]:
+            - generic [ref=e465]: 08-09
+            - generic [ref=e466]: "298"
+      - generic [ref=e467]:
+        - heading "全量会话记录" [level=3] [ref=e468]
+        - generic [ref=e469]:
+          - generic [ref=e470]:
+            - generic [ref=e471]: 用户
+            - generic [ref=e472]: 会话标题
+            - generic [ref=e473]: 意图
+            - generic [ref=e474]: 消息数
+            - generic [ref=e475]: 最近提问
+            - generic [ref=e476]: 更新时间
+          - generic [ref=e477] [cursor=pointer]:
+            - generic [ref=e478]:
+              - text: 管理员
+              - generic [ref=e479]: （13800000000）
+            - generic [ref=e480]: 软件不想要了能退款吗？
+            - generic [ref=e481]: 售后问题
+            - generic [ref=e482]: "2"
+            - generic [ref=e483]: 软件不想要了能退款吗？
+            - generic [ref=e484]: 2026/8/9 23:23:51
+          - generic [ref=e485] [cursor=pointer]:
+            - generic [ref=e486]:
+              - text: 用户
+              - generic [ref=e487]: （test_722767@pytest.com）
+            - generic [ref=e488]: 标准版多少钱？
+            - generic [ref=e489]: 产品咨询
+            - generic [ref=e490]: "2"
+            - generic [ref=e491]: 标准版多少钱？
+            - generic [ref=e492]: 2026/8/9 23:21:26
+          - generic [ref=e493] [cursor=pointer]:
+            - generic [ref=e494]:
+              - text: 用户
+              - generic [ref=e495]: （test_609840@pytest.com）
+            - generic [ref=e496]: 今天上海的天气怎么样？
+            - generic [ref=e497]: 闲聊
+            - generic [ref=e498]: "2"
+            - generic [ref=e499]: 今天上海的天气怎么样？
+            - generic [ref=e500]: 2026/8/9 23:21:23
+          - generic [ref=e501] [cursor=pointer]:
+            - generic [ref=e502]:
+              - text: 用户
+              - generic [ref=e503]: （test_511199@pytest.com）
+            - generic [ref=e504]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e505]: 产品咨询
+            - generic [ref=e506]: "2"
+            - generic [ref=e507]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e508]: 2026/8/9 23:21:17
+          - generic [ref=e509] [cursor=pointer]:
+            - generic [ref=e510]:
+              - text: 用户
+              - generic [ref=e511]: （test_511043@pytest.com）
+            - generic [ref=e512]: 标准版多少钱？
+            - generic [ref=e513]: 产品咨询
+            - generic [ref=e514]: "2"
+            - generic [ref=e515]: 标准版多少钱？
+            - generic [ref=e516]: 2026/8/9 23:20:55
+          - generic [ref=e517] [cursor=pointer]:
+            - generic [ref=e518]:
+              - text: 用户
+              - generic [ref=e519]: （test_163055@pytest.com）
+            - generic [ref=e520]: 标准版多少钱？
+            - generic [ref=e521]: 产品咨询
+            - generic [ref=e522]: "2"
+            - generic [ref=e523]: 标准版多少钱？
+            - generic [ref=e524]: 2026/8/9 23:20:22
+          - generic [ref=e525] [cursor=pointer]:
+            - generic [ref=e526]:
+              - text: 用户
+              - generic [ref=e527]: （test_471555@pytest.com）
+            - generic [ref=e528]: 今天上海的天气怎么样？
+            - generic [ref=e529]: 闲聊
+            - generic [ref=e530]: "2"
+            - generic [ref=e531]: 今天上海的天气怎么样？
+            - generic [ref=e532]: 2026/8/9 23:20:19
+          - generic [ref=e533] [cursor=pointer]:
+            - generic [ref=e534]:
+              - text: 用户
+              - generic [ref=e535]: （test_586604@pytest.com）
+            - generic [ref=e536]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e537]: 产品咨询
+            - generic [ref=e538]: "2"
+            - generic [ref=e539]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e540]: 2026/8/9 23:20:14
+          - generic [ref=e541] [cursor=pointer]:
+            - generic [ref=e542]:
+              - text: 用户
+              - generic [ref=e543]: （test_482601@pytest.com）
+            - generic [ref=e544]: 标准版多少钱？
+            - generic [ref=e545]: 产品咨询
+            - generic [ref=e546]: "2"
+            - generic [ref=e547]: 标准版多少钱？
+            - generic [ref=e548]: 2026/8/9 23:19:48
+          - generic [ref=e549] [cursor=pointer]:
+            - generic [ref=e550]:
+              - text: 冒烟测试
+              - generic [ref=e551]: （test_103430@smoke.com）
+            - generic [ref=e552]: 今天上海天气怎么样？
+            - generic [ref=e553]: 闲聊
+            - generic [ref=e554]: "2"
+            - generic [ref=e555]: 今天上海天气怎么样？
+            - generic [ref=e556]: 2026/8/9 22:26:10
+          - generic [ref=e557] [cursor=pointer]:
+            - generic [ref=e558]:
+              - text: 冒烟测试
+              - generic [ref=e559]: （test_103430@smoke.com）
+            - generic [ref=e560]: 云杉ERP标准版一年多少钱？
+            - generic [ref=e561]: 产品咨询
+            - generic [ref=e562]: "2"
+            - generic [ref=e563]: 云杉ERP标准版一年多少钱？
+            - generic [ref=e564]: 2026/8/9 22:26:04
+          - generic [ref=e565] [cursor=pointer]:
+            - generic [ref=e566]:
+              - text: 管理员
+              - generic [ref=e567]: （13800000000）
+            - generic [ref=e568]: 今天上海天气怎么样？
+            - generic [ref=e569]: 闲聊
+            - generic [ref=e570]: "2"
+            - generic [ref=e571]: 今天上海天气怎么样？
+            - generic [ref=e572]: 2026/8/9 22:25:27
+          - generic [ref=e573] [cursor=pointer]:
+            - generic [ref=e574]:
+              - text: 管理员
+              - generic [ref=e575]: （13800000000）
+            - generic [ref=e576]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e577]: 产品咨询
+            - generic [ref=e578]: "2"
+            - generic [ref=e579]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e580]: 2026/8/9 22:25:22
+          - generic [ref=e581] [cursor=pointer]:
+            - generic [ref=e582]:
+              - text: 管理员
+              - generic [ref=e583]: （13800000000）
+            - generic [ref=e584]: 忘记密码怎么办？
+            - generic [ref=e585]: 售后问题
+            - generic [ref=e586]: "2"
+            - generic [ref=e587]: 忘记密码怎么办？
+            - generic [ref=e588]: 2026/8/9 22:25:15
+          - generic [ref=e589] [cursor=pointer]:
+            - generic [ref=e590]:
+              - text: 管理员
+              - generic [ref=e591]: （13800000000）
+            - generic [ref=e592]: 专业版和标准版有什么区别？
+            - generic [ref=e593]: 产品咨询
+            - generic [ref=e594]: "2"
+            - generic [ref=e595]: 专业版和标准版有什么区别？
+            - generic [ref=e596]: 2026/8/9 22:25:08
+          - generic [ref=e597] [cursor=pointer]:
+            - generic [ref=e598]:
+              - text: 管理员
+              - generic [ref=e599]: （13800000000）
+            - generic [ref=e600]: 软件不想要了能退款吗？
+            - generic [ref=e601]: 售后问题
+            - generic [ref=e602]: "2"
+            - generic [ref=e603]: 软件不想要了能退款吗？
+            - generic [ref=e604]: 2026/8/9 22:25:01
+          - generic [ref=e605] [cursor=pointer]:
+            - generic [ref=e606]:
+              - text: 管理员
+              - generic [ref=e607]: （13800000000）
+            - generic [ref=e608]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e609]: 产品咨询
+            - generic [ref=e610]: "2"
+            - generic [ref=e611]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e612]: 2026/8/9 22:24:55
+          - generic [ref=e613] [cursor=pointer]:
+            - generic [ref=e614]:
+              - text: 管理员
+              - generic [ref=e615]: （13800000000）
+            - generic [ref=e616]: 今天上海天气怎么样？
+            - generic [ref=e617]: 闲聊
+            - generic [ref=e618]: "2"
+            - generic [ref=e619]: 今天上海天气怎么样？
+            - generic [ref=e620]: 2026/8/9 22:24:37
+          - generic [ref=e621] [cursor=pointer]:
+            - generic [ref=e622]:
+              - text: 管理员
+              - generic [ref=e623]: （13800000000）
+            - generic [ref=e624]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e625]: 产品咨询
+            - generic [ref=e626]: "2"
+            - generic [ref=e627]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e628]: 2026/8/9 22:24:30
+          - generic [ref=e629] [cursor=pointer]:
+            - generic [ref=e630]:
+              - text: 管理员
+              - generic [ref=e631]: （13800000000）
+            - generic [ref=e632]: 忘记密码怎么办？
+            - generic [ref=e633]: 售后问题
+            - generic [ref=e634]: "2"
+            - generic [ref=e635]: 忘记密码怎么办？
+            - generic [ref=e636]: 2026/8/9 22:24:22
+          - generic [ref=e637] [cursor=pointer]:
+            - generic [ref=e638]:
+              - text: 管理员
+              - generic [ref=e639]: （13800000000）
+            - generic [ref=e640]: 专业版和标准版有什么区别？
+            - generic [ref=e641]: 产品咨询
+            - generic [ref=e642]: "2"
+            - generic [ref=e643]: 专业版和标准版有什么区别？
+            - generic [ref=e644]: 2026/8/9 22:24:14
+          - generic [ref=e645] [cursor=pointer]:
+            - generic [ref=e646]:
+              - text: 管理员
+              - generic [ref=e647]: （13800000000）
+            - generic [ref=e648]: 软件不想要了能退款吗？
+            - generic [ref=e649]: 售后问题
+            - generic [ref=e650]: "2"
+            - generic [ref=e651]: 软件不想要了能退款吗？
+            - generic [ref=e652]: 2026/8/9 22:24:07
+          - generic [ref=e653] [cursor=pointer]:
+            - generic [ref=e654]:
+              - text: 管理员
+              - generic [ref=e655]: （13800000000）
+            - generic [ref=e656]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e657]: 产品咨询
+            - generic [ref=e658]: "2"
+            - generic [ref=e659]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e660]: 2026/8/9 22:24:01
+          - generic [ref=e661] [cursor=pointer]:
+            - generic [ref=e662]:
+              - text: 冒烟测试
+              - generic [ref=e663]: （test_178265@smoke.com）
+            - generic [ref=e664]: 今天上海天气怎么样？
+            - generic [ref=e665]: 闲聊
+            - generic [ref=e666]: "2"
+            - generic [ref=e667]: 今天上海天气怎么样？
+            - generic [ref=e668]: 2026/8/9 22:23:42
+          - generic [ref=e669] [cursor=pointer]:
+            - generic [ref=e670]:
+              - text: 冒烟测试
+              - generic [ref=e671]: （test_178265@smoke.com）
+            - generic [ref=e672]: 云杉ERP标准版一年多少钱？
+            - generic [ref=e673]: 产品咨询
+            - generic [ref=e674]: "2"
+            - generic [ref=e675]: 云杉ERP标准版一年多少钱？
+            - generic [ref=e676]: 2026/8/9 22:23:37
+          - generic [ref=e677] [cursor=pointer]:
+            - generic [ref=e678]:
+              - text: 管理员
+              - generic [ref=e679]: （13800000000）
+            - generic [ref=e680]: 老客户续费有折扣吗？
+            - generic [ref=e681]: 产品咨询
+            - generic [ref=e682]: "2"
+            - generic [ref=e683]: 老客户续费有折扣吗？
+            - generic [ref=e684]: 2026/8/9 22:22:37
+          - generic [ref=e685] [cursor=pointer]:
+            - generic [ref=e686]:
+              - text: 管理员
+              - generic [ref=e687]: （13800000000）
+            - generic [ref=e688]: 旗舰版多少钱？
+            - generic [ref=e689]: 产品咨询
+            - generic [ref=e690]: "2"
+            - generic [ref=e691]: 旗舰版多少钱？
+            - generic [ref=e692]: 2026/8/9 22:20:40
+          - generic [ref=e693] [cursor=pointer]:
+            - generic [ref=e694]:
+              - text: 管理员
+              - generic [ref=e695]: （13800000000）
+            - generic [ref=e696]: 老客户续费有折扣吗？
+            - generic [ref=e697]: 产品咨询
+            - generic [ref=e698]: "2"
+            - generic [ref=e699]: 老客户续费有折扣吗？
+            - generic [ref=e700]: 2026/8/9 22:20:17
+          - generic [ref=e701] [cursor=pointer]:
+            - generic [ref=e702]:
+              - text: 管理员
+              - generic [ref=e703]: （13800000000）
+            - generic [ref=e704]: 旗舰版多少钱？
+            - generic [ref=e705]: 产品咨询
+            - generic [ref=e706]: "2"
+            - generic [ref=e707]: 旗舰版多少钱？
+            - generic [ref=e708]: 2026/8/9 22:19:26
+          - generic [ref=e709] [cursor=pointer]:
+            - generic [ref=e710]:
+              - text: 管理员
+              - generic [ref=e711]: （13800000000）
+            - generic [ref=e712]: 老客户续费有折扣吗？
+            - generic [ref=e713]: 产品咨询
+            - generic [ref=e714]: "2"
+            - generic [ref=e715]: 老客户续费有折扣吗？
+            - generic [ref=e716]: 2026/8/9 22:19:20
+          - generic [ref=e717] [cursor=pointer]:
+            - generic [ref=e718]:
+              - text: 管理员
+              - generic [ref=e719]: （13800000000）
+            - generic [ref=e720]: 今天上海天气怎么样？
+            - generic [ref=e721]: 闲聊
+            - generic [ref=e722]: "2"
+            - generic [ref=e723]: 今天上海天气怎么样？
+            - generic [ref=e724]: 2026/8/9 22:18:25
+          - generic [ref=e725] [cursor=pointer]:
+            - generic [ref=e726]:
+              - text: 管理员
+              - generic [ref=e727]: （13800000000）
+            - generic [ref=e728]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e729]: 产品咨询
+            - generic [ref=e730]: "2"
+            - generic [ref=e731]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e732]: 2026/8/9 22:18:18
+          - generic [ref=e733] [cursor=pointer]:
+            - generic [ref=e734]:
+              - text: 管理员
+              - generic [ref=e735]: （13800000000）
+            - generic [ref=e736]: 忘记密码怎么办？
+            - generic [ref=e737]: 售后问题
+            - generic [ref=e738]: "2"
+            - generic [ref=e739]: 忘记密码怎么办？
+            - generic [ref=e740]: 2026/8/9 22:18:11
+          - generic [ref=e741] [cursor=pointer]:
+            - generic [ref=e742]:
+              - text: 管理员
+              - generic [ref=e743]: （13800000000）
+            - generic [ref=e744]: 专业版和标准版有什么区别？
+            - generic [ref=e745]: 产品咨询
+            - generic [ref=e746]: "2"
+            - generic [ref=e747]: 专业版和标准版有什么区别？
+            - generic [ref=e748]: 2026/8/9 22:18:03
+          - generic [ref=e749] [cursor=pointer]:
+            - generic [ref=e750]:
+              - text: 管理员
+              - generic [ref=e751]: （13800000000）
+            - generic [ref=e752]: 软件不想要了能退款吗？
+            - generic [ref=e753]: 售后问题
+            - generic [ref=e754]: "2"
+            - generic [ref=e755]: 软件不想要了能退款吗？
+            - generic [ref=e756]: 2026/8/9 22:17:56
+          - generic [ref=e757] [cursor=pointer]:
+            - generic [ref=e758]:
+              - text: 管理员
+              - generic [ref=e759]: （13800000000）
+            - generic [ref=e760]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e761]: 产品咨询
+            - generic [ref=e762]: "2"
+            - generic [ref=e763]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e764]: 2026/8/9 22:17:48
+          - generic [ref=e765] [cursor=pointer]:
+            - generic [ref=e766]:
+              - text: 冒烟测试
+              - generic [ref=e767]: （test_698210@smoke.com）
+            - generic [ref=e768]: 今天上海天气怎么样？
+            - generic [ref=e769]: 闲聊
+            - generic [ref=e770]: "2"
+            - generic [ref=e771]: 今天上海天气怎么样？
+            - generic [ref=e772]: 2026/8/9 22:17:30
+          - generic [ref=e773] [cursor=pointer]:
+            - generic [ref=e774]:
+              - text: 冒烟测试
+              - generic [ref=e775]: （test_698210@smoke.com）
+            - generic [ref=e776]: 云杉ERP标准版一年多少钱？
+            - generic [ref=e777]: 产品咨询
+            - generic [ref=e778]: "2"
+            - generic [ref=e779]: 云杉ERP标准版一年多少钱？
+            - generic [ref=e780]: 2026/8/9 22:17:24
+          - generic [ref=e781] [cursor=pointer]:
+            - generic [ref=e782]:
+              - text: 管理员
+              - generic [ref=e783]: （13800000000）
+            - generic [ref=e784]: 标准版多少钱？
+            - generic [ref=e785]: 产品咨询
+            - generic [ref=e786]: "2"
+            - generic [ref=e787]: 标准版多少钱？
+            - generic [ref=e788]: 2026/8/9 22:16:52
+          - generic [ref=e789] [cursor=pointer]:
+            - generic [ref=e790]:
+              - text: 管理员
+              - generic [ref=e791]: （13800000000）
+            - generic [ref=e792]: 标准版多少钱？
+            - generic [ref=e793]: 产品咨询
+            - generic [ref=e794]: "2"
+            - generic [ref=e795]: 标准版多少钱？
+            - generic [ref=e796]: 2026/8/9 22:16:46
+          - generic [ref=e797] [cursor=pointer]:
+            - generic [ref=e798]:
+              - text: 冒烟测试
+              - generic [ref=e799]: （test_207846@smoke.com）
+            - generic [ref=e800]: 今天上海天气怎么样？
+            - generic [ref=e801]: 闲聊
+            - generic [ref=e802]: "2"
+            - generic [ref=e803]: 今天上海天气怎么样？
+            - generic [ref=e804]: 2026/8/9 21:52:03
+          - generic [ref=e805] [cursor=pointer]:
+            - generic [ref=e806]:
+              - text: 冒烟测试
+              - generic [ref=e807]: （test_207846@smoke.com）
+            - generic [ref=e808]: 云杉ERP标准版一年多少钱？
+            - generic [ref=e809]: 产品咨询
+            - generic [ref=e810]: "2"
+            - generic [ref=e811]: 云杉ERP标准版一年多少钱？
+            - generic [ref=e812]: 2026/8/9 21:51:56
+          - generic [ref=e813] [cursor=pointer]:
+            - generic [ref=e814]:
+              - text: 管理员
+              - generic [ref=e815]: （13800000000）
+            - generic [ref=e816]: 软件不想要了能退款吗？
+            - generic [ref=e817]: 售后问题
+            - generic [ref=e818]: "2"
+            - generic [ref=e819]: 软件不想要了能退款吗？
+            - generic [ref=e820]: 2026/8/9 21:43:52
+          - generic [ref=e821] [cursor=pointer]:
+            - generic [ref=e822]:
+              - text: 管理员
+              - generic [ref=e823]: （13800000000）
+            - generic [ref=e824]: 软件不想要了能退款吗？
+            - generic [ref=e825]: "0"
+            - generic [ref=e826]: 2026/8/9 21:42:52
+          - generic [ref=e827] [cursor=pointer]:
+            - generic [ref=e828]:
+              - text: 管理员
+              - generic [ref=e829]: （13800000000）
+            - generic [ref=e830]: 软件不想要了能退款吗？
+            - generic [ref=e831]: 售后问题
+            - generic [ref=e832]: "0"
+            - generic [ref=e833]: 2026/8/9 21:38:11
+          - generic [ref=e834] [cursor=pointer]:
+            - generic [ref=e835]:
+              - text: 管理员
+              - generic [ref=e836]: （13800000000）
+            - generic [ref=e837]: 你好呀，今天心情不错
+            - generic [ref=e838]: 闲聊
+            - generic [ref=e839]: "0"
+            - generic [ref=e840]: 2026/8/9 21:34:22
+          - generic [ref=e841] [cursor=pointer]:
+            - generic [ref=e842]:
+              - text: 管理员
+              - generic [ref=e843]: （13800000000）
+            - generic [ref=e844]: 云杉ERP有哪些版本？
+            - generic [ref=e845]: 产品咨询
+            - generic [ref=e846]: "0"
+            - generic [ref=e847]: 2026/8/9 21:34:13
+          - generic [ref=e848] [cursor=pointer]:
+            - generic [ref=e849]:
+              - text: 冒烟测试
+              - generic [ref=e850]: （test_329480@smoke.com）
+            - generic [ref=e851]: 今天上海天气怎么样？
+            - generic [ref=e852]: 闲聊
+            - generic [ref=e853]: "0"
+            - generic [ref=e854]: 2026/8/9 21:31:54
+          - generic [ref=e855] [cursor=pointer]:
+            - generic [ref=e856]:
+              - text: 冒烟测试
+              - generic [ref=e857]: （test_329480@smoke.com）
+            - generic [ref=e858]: 云杉ERP标准版一年多少钱？
+            - generic [ref=e859]: 产品咨询
+            - generic [ref=e860]: "0"
+            - generic [ref=e861]: 2026/8/9 21:31:50
+          - generic [ref=e862] [cursor=pointer]:
+            - generic [ref=e863]:
+              - text: 管理员
+              - generic [ref=e864]: （13800000000）
+            - generic [ref=e865]: 今天上海天气怎么样？
+            - generic [ref=e866]: 闲聊
+            - generic [ref=e867]: "0"
+            - generic [ref=e868]: 2026/8/9 21:31:22
+          - generic [ref=e869] [cursor=pointer]:
+            - generic [ref=e870]:
+              - text: 管理员
+              - generic [ref=e871]: （13800000000）
+            - generic [ref=e872]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e873]: 产品咨询
+            - generic [ref=e874]: "0"
+            - generic [ref=e875]: 2026/8/9 21:31:17
+          - generic [ref=e876] [cursor=pointer]:
+            - generic [ref=e877]:
+              - text: 管理员
+              - generic [ref=e878]: （13800000000）
+            - generic [ref=e879]: 忘记密码怎么办？
+            - generic [ref=e880]: 产品咨询
+            - generic [ref=e881]: "0"
+            - generic [ref=e882]: 2026/8/9 21:31:12
+          - generic [ref=e883] [cursor=pointer]:
+            - generic [ref=e884]:
+              - text: 管理员
+              - generic [ref=e885]: （13800000000）
+            - generic [ref=e886]: 专业版和标准版有什么区别？
+            - generic [ref=e887]: 产品咨询
+            - generic [ref=e888]: "0"
+            - generic [ref=e889]: 2026/8/9 21:31:06
+          - generic [ref=e890] [cursor=pointer]:
+            - generic [ref=e891]:
+              - text: 管理员
+              - generic [ref=e892]: （13800000000）
+            - generic [ref=e893]: 软件不想要了能退款吗？
+            - generic [ref=e894]: 售后问题
+            - generic [ref=e895]: "0"
+            - generic [ref=e896]: 2026/8/9 21:31:00
+          - generic [ref=e897] [cursor=pointer]:
+            - generic [ref=e898]:
+              - text: 管理员
+              - generic [ref=e899]: （13800000000）
+            - generic [ref=e900]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e901]: 产品咨询
+            - generic [ref=e902]: "0"
+            - generic [ref=e903]: 2026/8/9 21:30:37
+          - generic [ref=e904] [cursor=pointer]:
+            - generic [ref=e905]:
+              - text: 管理员
+              - generic [ref=e906]: （13800000000）
+            - generic [ref=e907]: 今天上海天气怎么样？
+            - generic [ref=e908]: 闲聊
+            - generic [ref=e909]: "0"
+            - generic [ref=e910]: 2026/8/9 21:28:12
+          - generic [ref=e911] [cursor=pointer]:
+            - generic [ref=e912]:
+              - text: 管理员
+              - generic [ref=e913]: （13800000000）
+            - generic [ref=e914]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e915]: 产品咨询
+            - generic [ref=e916]: "0"
+            - generic [ref=e917]: 2026/8/9 21:28:08
+          - generic [ref=e918] [cursor=pointer]:
+            - generic [ref=e919]:
+              - text: 管理员
+              - generic [ref=e920]: （13800000000）
+            - generic [ref=e921]: 忘记密码怎么办？
+            - generic [ref=e922]: 产品咨询
+            - generic [ref=e923]: "0"
+            - generic [ref=e924]: 2026/8/9 21:28:04
+          - generic [ref=e925] [cursor=pointer]:
+            - generic [ref=e926]:
+              - text: 管理员
+              - generic [ref=e927]: （13800000000）
+            - generic [ref=e928]: 专业版和标准版有什么区别？
+            - generic [ref=e929]: 产品咨询
+            - generic [ref=e930]: "0"
+            - generic [ref=e931]: 2026/8/9 21:27:59
+          - generic [ref=e932] [cursor=pointer]:
+            - generic [ref=e933]:
+              - text: 管理员
+              - generic [ref=e934]: （13800000000）
+            - generic [ref=e935]: 软件不想要了能退款吗？
+            - generic [ref=e936]: 售后问题
+            - generic [ref=e937]: "0"
+            - generic [ref=e938]: 2026/8/9 21:27:54
+          - generic [ref=e939] [cursor=pointer]:
+            - generic [ref=e940]:
+              - text: 管理员
+              - generic [ref=e941]: （13800000000）
+            - generic [ref=e942]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e943]: 产品咨询
+            - generic [ref=e944]: "0"
+            - generic [ref=e945]: 2026/8/9 21:27:32
+          - generic [ref=e946] [cursor=pointer]:
+            - generic [ref=e947]:
+              - text: 管理员
+              - generic [ref=e948]: （13800000000）
+            - generic [ref=e949]: 今天上海天气怎么样？
+            - generic [ref=e950]: 闲聊
+            - generic [ref=e951]: "0"
+            - generic [ref=e952]: 2026/8/9 21:26:24
+          - generic [ref=e953] [cursor=pointer]:
+            - generic [ref=e954]:
+              - text: 管理员
+              - generic [ref=e955]: （13800000000）
+            - generic [ref=e956]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e957]: 产品咨询
+            - generic [ref=e958]: "0"
+            - generic [ref=e959]: 2026/8/9 21:26:20
+          - generic [ref=e960] [cursor=pointer]:
+            - generic [ref=e961]:
+              - text: 管理员
+              - generic [ref=e962]: （13800000000）
+            - generic [ref=e963]: 忘记密码怎么办？
+            - generic [ref=e964]: 产品咨询
+            - generic [ref=e965]: "0"
+            - generic [ref=e966]: 2026/8/9 21:26:16
+          - generic [ref=e967] [cursor=pointer]:
+            - generic [ref=e968]:
+              - text: 管理员
+              - generic [ref=e969]: （13800000000）
+            - generic [ref=e970]: 专业版和标准版有什么区别？
+            - generic [ref=e971]: 产品咨询
+            - generic [ref=e972]: "0"
+            - generic [ref=e973]: 2026/8/9 21:26:11
+          - generic [ref=e974] [cursor=pointer]:
+            - generic [ref=e975]:
+              - text: 管理员
+              - generic [ref=e976]: （13800000000）
+            - generic [ref=e977]: 软件不想要了能退款吗？
+            - generic [ref=e978]: 售后问题
+            - generic [ref=e979]: "0"
+            - generic [ref=e980]: 2026/8/9 21:26:07
+          - generic [ref=e981] [cursor=pointer]:
+            - generic [ref=e982]:
+              - text: 管理员
+              - generic [ref=e983]: （13800000000）
+            - generic [ref=e984]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e985]: 产品咨询
+            - generic [ref=e986]: "0"
+            - generic [ref=e987]: 2026/8/9 21:25:42
+          - generic [ref=e988] [cursor=pointer]:
+            - generic [ref=e989]:
+              - text: 管理员
+              - generic [ref=e990]: （13800000000）
+            - generic [ref=e991]: 今天上海天气怎么样？
+            - generic [ref=e992]: 闲聊
+            - generic [ref=e993]: "0"
+            - generic [ref=e994]: 2026/8/9 21:24:49
+          - generic [ref=e995] [cursor=pointer]:
+            - generic [ref=e996]:
+              - text: 管理员
+              - generic [ref=e997]: （13800000000）
+            - generic [ref=e998]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e999]: 产品咨询
+            - generic [ref=e1000]: "0"
+            - generic [ref=e1001]: 2026/8/9 21:24:45
+          - generic [ref=e1002] [cursor=pointer]:
+            - generic [ref=e1003]:
+              - text: 管理员
+              - generic [ref=e1004]: （13800000000）
+            - generic [ref=e1005]: 忘记密码怎么办？
+            - generic [ref=e1006]: 产品咨询
+            - generic [ref=e1007]: "0"
+            - generic [ref=e1008]: 2026/8/9 21:24:41
+          - generic [ref=e1009] [cursor=pointer]:
+            - generic [ref=e1010]:
+              - text: 管理员
+              - generic [ref=e1011]: （13800000000）
+            - generic [ref=e1012]: 专业版和标准版有什么区别？
+            - generic [ref=e1013]: 产品咨询
+            - generic [ref=e1014]: "0"
+            - generic [ref=e1015]: 2026/8/9 21:24:37
+          - generic [ref=e1016] [cursor=pointer]:
+            - generic [ref=e1017]:
+              - text: 管理员
+              - generic [ref=e1018]: （13800000000）
+            - generic [ref=e1019]: 软件不想要了能退款吗？
+            - generic [ref=e1020]: 售后问题
+            - generic [ref=e1021]: "0"
+            - generic [ref=e1022]: 2026/8/9 21:24:32
+          - generic [ref=e1023] [cursor=pointer]:
+            - generic [ref=e1024]:
+              - text: 管理员
+              - generic [ref=e1025]: （13800000000）
+            - generic [ref=e1026]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1027]: 产品咨询
+            - generic [ref=e1028]: "0"
+            - generic [ref=e1029]: 2026/8/9 21:24:12
+          - generic [ref=e1030] [cursor=pointer]:
+            - generic [ref=e1031]:
+              - text: 管理员
+              - generic [ref=e1032]: （13800000000）
+            - generic [ref=e1033]: 今天上海天气怎么样？
+            - generic [ref=e1034]: 闲聊
+            - generic [ref=e1035]: "0"
+            - generic [ref=e1036]: 2026/8/9 21:22:50
+          - generic [ref=e1037] [cursor=pointer]:
+            - generic [ref=e1038]:
+              - text: 管理员
+              - generic [ref=e1039]: （13800000000）
+            - generic [ref=e1040]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e1041]: 产品咨询
+            - generic [ref=e1042]: "0"
+            - generic [ref=e1043]: 2026/8/9 21:22:47
+          - generic [ref=e1044] [cursor=pointer]:
+            - generic [ref=e1045]:
+              - text: 管理员
+              - generic [ref=e1046]: （13800000000）
+            - generic [ref=e1047]: 忘记密码怎么办？
+            - generic [ref=e1048]: 产品咨询
+            - generic [ref=e1049]: "0"
+            - generic [ref=e1050]: 2026/8/9 21:22:43
+          - generic [ref=e1051] [cursor=pointer]:
+            - generic [ref=e1052]:
+              - text: 管理员
+              - generic [ref=e1053]: （13800000000）
+            - generic [ref=e1054]: 专业版和标准版有什么区别？
+            - generic [ref=e1055]: 产品咨询
+            - generic [ref=e1056]: "0"
+            - generic [ref=e1057]: 2026/8/9 21:22:40
+          - generic [ref=e1058] [cursor=pointer]:
+            - generic [ref=e1059]:
+              - text: 管理员
+              - generic [ref=e1060]: （13800000000）
+            - generic [ref=e1061]: 软件不想要了能退款吗？
+            - generic [ref=e1062]: 售后问题
+            - generic [ref=e1063]: "0"
+            - generic [ref=e1064]: 2026/8/9 21:22:36
+          - generic [ref=e1065] [cursor=pointer]:
+            - generic [ref=e1066]:
+              - text: 管理员
+              - generic [ref=e1067]: （13800000000）
+            - generic [ref=e1068]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1069]: 产品咨询
+            - generic [ref=e1070]: "0"
+            - generic [ref=e1071]: 2026/8/9 21:22:14
+          - generic [ref=e1072] [cursor=pointer]:
+            - generic [ref=e1073]:
+              - text: 管理员
+              - generic [ref=e1074]: （13800000000）
+            - generic [ref=e1075]: 今天上海天气怎么样？
+            - generic [ref=e1076]: 闲聊
+            - generic [ref=e1077]: "0"
+            - generic [ref=e1078]: 2026/8/9 21:21:32
+          - generic [ref=e1079] [cursor=pointer]:
+            - generic [ref=e1080]:
+              - text: 管理员
+              - generic [ref=e1081]: （13800000000）
+            - generic [ref=e1082]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e1083]: 产品咨询
+            - generic [ref=e1084]: "0"
+            - generic [ref=e1085]: 2026/8/9 21:21:29
+          - generic [ref=e1086] [cursor=pointer]:
+            - generic [ref=e1087]:
+              - text: 管理员
+              - generic [ref=e1088]: （13800000000）
+            - generic [ref=e1089]: 忘记密码怎么办？
+            - generic [ref=e1090]: 产品咨询
+            - generic [ref=e1091]: "0"
+            - generic [ref=e1092]: 2026/8/9 21:21:26
+          - generic [ref=e1093] [cursor=pointer]:
+            - generic [ref=e1094]:
+              - text: 管理员
+              - generic [ref=e1095]: （13800000000）
+            - generic [ref=e1096]: 专业版和标准版有什么区别？
+            - generic [ref=e1097]: 产品咨询
+            - generic [ref=e1098]: "0"
+            - generic [ref=e1099]: 2026/8/9 21:21:22
+          - generic [ref=e1100] [cursor=pointer]:
+            - generic [ref=e1101]:
+              - text: 管理员
+              - generic [ref=e1102]: （13800000000）
+            - generic [ref=e1103]: 软件不想要了能退款吗？
+            - generic [ref=e1104]: 售后问题
+            - generic [ref=e1105]: "0"
+            - generic [ref=e1106]: 2026/8/9 21:21:19
+          - generic [ref=e1107] [cursor=pointer]:
+            - generic [ref=e1108]:
+              - text: 管理员
+              - generic [ref=e1109]: （13800000000）
+            - generic [ref=e1110]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1111]: 产品咨询
+            - generic [ref=e1112]: "0"
+            - generic [ref=e1113]: 2026/8/9 21:20:51
+          - generic [ref=e1114] [cursor=pointer]:
+            - generic [ref=e1115]:
+              - text: 管理员
+              - generic [ref=e1116]: （13800000000）
+            - generic [ref=e1117]: 今天上海天气怎么样？
+            - generic [ref=e1118]: 闲聊
+            - generic [ref=e1119]: "0"
+            - generic [ref=e1120]: 2026/8/9 21:19:45
+          - generic [ref=e1121] [cursor=pointer]:
+            - generic [ref=e1122]:
+              - text: 管理员
+              - generic [ref=e1123]: （13800000000）
+            - generic [ref=e1124]: 你们旗舰版支持私有化部署吗？
+            - generic [ref=e1125]: 产品咨询
+            - generic [ref=e1126]: "0"
+            - generic [ref=e1127]: 2026/8/9 21:19:41
+          - generic [ref=e1128] [cursor=pointer]:
+            - generic [ref=e1129]:
+              - text: 管理员
+              - generic [ref=e1130]: （13800000000）
+            - generic [ref=e1131]: 忘记密码怎么办？
+            - generic [ref=e1132]: 产品咨询
+            - generic [ref=e1133]: "0"
+            - generic [ref=e1134]: 2026/8/9 21:19:38
+          - generic [ref=e1135] [cursor=pointer]:
+            - generic [ref=e1136]:
+              - text: 管理员
+              - generic [ref=e1137]: （13800000000）
+            - generic [ref=e1138]: 专业版和标准版有什么区别？
+            - generic [ref=e1139]: 产品咨询
+            - generic [ref=e1140]: "0"
+            - generic [ref=e1141]: 2026/8/9 21:19:34
+          - generic [ref=e1142] [cursor=pointer]:
+            - generic [ref=e1143]:
+              - text: 管理员
+              - generic [ref=e1144]: （13800000000）
+            - generic [ref=e1145]: 软件不想要了能退款吗？
+            - generic [ref=e1146]: 售后问题
+            - generic [ref=e1147]: "0"
+            - generic [ref=e1148]: 2026/8/9 21:19:30
+          - generic [ref=e1149] [cursor=pointer]:
+            - generic [ref=e1150]:
+              - text: 管理员
+              - generic [ref=e1151]: （13800000000）
+            - generic [ref=e1152]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1153]: 产品咨询
+            - generic [ref=e1154]: "0"
+            - generic [ref=e1155]: 2026/8/9 21:19:08
+          - generic [ref=e1156] [cursor=pointer]:
+            - generic [ref=e1157]:
+              - text: 管理员
+              - generic [ref=e1158]: （13800000000）
+            - generic [ref=e1159]: 今天上海天气怎么样？
+            - generic [ref=e1160]: 闲聊
+            - generic [ref=e1161]: "0"
+            - generic [ref=e1162]: 2026/8/9 21:17:10
+          - generic [ref=e1163] [cursor=pointer]:
+            - generic [ref=e1164]:
+              - text: 管理员
+              - generic [ref=e1165]: （13800000000）
+            - generic [ref=e1166]: 软件不想要了能退款吗？
+            - generic [ref=e1167]: 售后问题
+            - generic [ref=e1168]: "0"
+            - generic [ref=e1169]: 2026/8/9 21:17:07
+          - generic [ref=e1170] [cursor=pointer]:
+            - generic [ref=e1171]:
+              - text: 管理员
+              - generic [ref=e1172]: （13800000000）
+            - generic [ref=e1173]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1174]: 产品咨询
+            - generic [ref=e1175]: "0"
+            - generic [ref=e1176]: 2026/8/9 21:17:00
+          - generic [ref=e1177] [cursor=pointer]:
+            - generic [ref=e1178]:
+              - text: 管理员
+              - generic [ref=e1179]: （13800000000）
+            - generic [ref=e1180]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1181]: 产品咨询
+            - generic [ref=e1182]: "0"
+            - generic [ref=e1183]: 2026/8/9 21:09:02
+          - generic [ref=e1184] [cursor=pointer]:
+            - generic [ref=e1185]:
+              - text: 管理员
+              - generic [ref=e1186]: （13800000000）
+            - generic [ref=e1187]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1188]: 产品咨询
+            - generic [ref=e1189]: "0"
+            - generic [ref=e1190]: 2026/8/9 21:08:26
+          - generic [ref=e1191] [cursor=pointer]:
+            - generic [ref=e1192]:
+              - text: 管理员
+              - generic [ref=e1193]: （13800000000）
+            - generic [ref=e1194]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1195]: 产品咨询
+            - generic [ref=e1196]: "0"
+            - generic [ref=e1197]: 2026/8/9 21:06:30
+          - generic [ref=e1198] [cursor=pointer]:
+            - generic [ref=e1199]:
+              - text: 管理员
+              - generic [ref=e1200]: （13800000000）
+            - generic [ref=e1201]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1202]: 产品咨询
+            - generic [ref=e1203]: "0"
+            - generic [ref=e1204]: 2026/8/9 21:05:50
+          - generic [ref=e1205] [cursor=pointer]:
+            - generic [ref=e1206]:
+              - text: 管理员
+              - generic [ref=e1207]: （13800000000）
+            - generic [ref=e1208]: 云杉ERP标准版多少钱一年？
+            - generic [ref=e1209]: 产品咨询
+            - generic [ref=e1210]: "0"
+            - generic [ref=e1211]: 2026/8/9 21:05:15

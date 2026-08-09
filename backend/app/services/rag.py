@@ -144,6 +144,14 @@ QUERY_EXPANSION_PROMPT = """你是检索查询优化器。请把用户的客服�
 直接输出改写后的查询，不要任何解释和引号。
 用户问题：{question}"""
 
+# 历史压缩：多轮对话超长时的分层处理（见 AI架构设计.md "上下文超长"）
+HISTORY_COMPRESS_PROMPT = """请把以下客服对话压缩成一段不超过 300 字的摘要，供后续对话参考。
+要求：保留用户提出的所有问题主题、已给出的关键结论（价格/政策/条款），删除寒暄与重复内容。
+直接输出摘要，不要任何解释。
+
+对话内容：
+{history}"""
+
 
 async def detect_intent(question: str) -> str:
     """意图识别（加分项）：LLM 分类，失败时关键词启发式兜底，保证主链路不受影响。"""
@@ -305,8 +313,42 @@ async def generate_followups(question: str, answer: str) -> list[str]:
         return []
 
 
-def get_history(db: Session, session_id: int, rounds: int | None = None) -> list[dict]:
-    """取会话最近 N 轮历史消息（每轮 = 1 user + 1 assistant）。"""
+async def compress_history(history: list[dict]) -> list[dict]:
+    """上下文超长时的分层处理：保留最新 3 轮原文，更早的轮次用 LLM 压缩为摘要。
+
+    策略（对应"上下文超长"工程问题）：
+    - 短历史（≤2000 字）不压缩，零额外开销；
+    - 超长时把最旧部分交给 LLM 压缩成 ≤300 字摘要，紧跟原文最新轮次，
+      既保留历史关键结论（价格/政策），又不撑爆上下文窗口；
+    - 压缩失败回退为字符截断（_truncate_history），不影响主链路。
+    """
+    if sum(len(m["content"]) for m in history) <= 2000:
+        return history
+    recent = history[-6:]  # 最近 3 轮原文
+    older = history[:-6]
+    if not older:
+        return history
+    try:
+        text = "\n".join(f"{'用户' if m['role'] == 'user' else '客服'}: {m['content']}" for m in older)
+        summary = await chat_once(
+            [
+                {"role": "system", "content": "你是对话历史压缩器。"},
+                {"role": "user", "content": HISTORY_COMPRESS_PROMPT.format(history=text[-4000:])},
+            ],
+            temperature=0.1,
+            max_tokens=400,
+        )
+        summary = summary.strip()
+        if not summary:
+            return _truncate_history(history)
+        return [{"role": "user", "content": f"【更早对话摘要】{summary}"}] + recent
+    except Exception as e:
+        logger.warning("历史压缩失败，回退截断: %s", e)
+        return _truncate_history(history)
+
+
+async def get_history(db: Session, session_id: int, rounds: int | None = None) -> list[dict]:
+    """取会话最近 N 轮历史消息（每轮 = 1 user + 1 assistant），超长时自动压缩。"""
     rounds = rounds or settings.rag_history_rounds
     msgs = db.scalars(
         select(Message)
@@ -315,4 +357,4 @@ def get_history(db: Session, session_id: int, rounds: int | None = None) -> list
         .limit(rounds * 2)
     ).all()
     history = [{"role": m.role, "content": m.content} for m in reversed(msgs)]
-    return _truncate_history(history)
+    return await compress_history(history)

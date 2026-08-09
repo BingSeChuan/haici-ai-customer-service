@@ -94,7 +94,7 @@ async def chat_stream(
             kb_obj = db.get(KnowledgeBase, int(top_kb))
             if kb_obj:
                 routed_kb_name = kb_obj.name
-    history = get_history(db, session.id)
+    history = await get_history(db, session.id)
 
     async def event_stream():
         # 生成器内使用独立会话（请求会话在响应结束后才关闭，但长流中自建更稳妥）

@@ -47,6 +47,13 @@ def upload_document(
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="仅支持 .txt / .md / .pdf 格式")
 
+    content = file.file.read()
+    if len(content) > settings.max_upload_size_mb * 1024 * 1024:
+        raise HTTPException(
+            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"文件过大，上限 {settings.max_upload_size_mb}MB",
+        )
+
     kb = _ensure_default_kb(db, user.id)
     if knowledge_base_id:
         target = db.get(KnowledgeBase, knowledge_base_id)
@@ -57,7 +64,7 @@ def upload_document(
     os.makedirs(settings.upload_dir, exist_ok=True)
     file_path = os.path.join(settings.upload_dir, f"{uuid.uuid4().hex}{ext}")
     with open(file_path, "wb") as f:
-        f.write(file.file.read())
+        f.write(content)
 
     doc = Document(
         user_id=user.id,
@@ -83,6 +90,26 @@ def list_documents(
         select(Document).where(Document.user_id == user.id).order_by(Document.id.desc())
     ).all()
     return [DocumentOut.model_validate(d) for d in docs]
+
+
+# 注意：/bases 必须定义在 /{doc_id} 之前（FastAPI 按定义顺序匹配路径）
+@router.get("/bases", response_model=list[KnowledgeBaseOut])
+def list_knowledge_bases(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    kbs = db.scalars(
+        select(KnowledgeBase).where(KnowledgeBase.user_id == user.id).order_by(KnowledgeBase.id)
+    ).all()
+    return [KnowledgeBaseOut.model_validate(k) for k in kbs]
+
+
+@router.post("/bases", response_model=KnowledgeBaseOut)
+def create_knowledge_base(
+    body: KnowledgeBaseCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    kb = KnowledgeBase(user_id=user.id, name=body.name, description=body.description)
+    db.add(kb)
+    db.commit()
+    db.refresh(kb)
+    return KnowledgeBaseOut.model_validate(kb)
 
 
 @router.get("/{doc_id}", response_model=DocumentOut)
@@ -111,23 +138,3 @@ def delete_document(doc_id: int, db: Session = Depends(get_db), user: User = Dep
     db.delete(doc)
     db.commit()
     return {"ok": True}
-
-
-# ---------- 多知识库（加分项） ----------
-@router.get("/bases", response_model=list[KnowledgeBaseOut])
-def list_knowledge_bases(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    kbs = db.scalars(
-        select(KnowledgeBase).where(KnowledgeBase.user_id == user.id).order_by(KnowledgeBase.id)
-    ).all()
-    return [KnowledgeBaseOut.model_validate(k) for k in kbs]
-
-
-@router.post("/bases", response_model=KnowledgeBaseOut)
-def create_knowledge_base(
-    body: KnowledgeBaseCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)
-):
-    kb = KnowledgeBase(user_id=user.id, name=body.name, description=body.description)
-    db.add(kb)
-    db.commit()
-    db.refresh(kb)
-    return KnowledgeBaseOut.model_validate(kb)

@@ -115,7 +115,7 @@ def chunk_text(text: str, chunk_size: int | None = None, overlap: int | None = N
         if cur:
             blocks.append("\n".join(cur))
 
-    # 2. 章节单元独立成块；普通段落合并到预算
+    # 2. 章节单元独立成块；普通段落合并到预算；超长块按句子切割
     chunks: list[str] = []
     buf = ""
     for block in blocks:
@@ -127,6 +127,12 @@ def chunk_text(text: str, chunk_size: int | None = None, overlap: int | None = N
                 chunks.extend(_split_long_block(block, chunk_size, overlap))
             else:
                 chunks.append(block)
+        elif len(block) > chunk_size:
+            # 普通超长段落：先 flush 缓冲区，再按句子切割
+            if buf:
+                chunks.append(buf)
+                buf = ""
+            chunks.extend(_split_long_block(block, chunk_size, overlap))
         elif len(buf) + len(block) <= chunk_size:
             buf = f"{buf}\n{block}" if buf else block
         else:

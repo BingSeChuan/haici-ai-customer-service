@@ -1,0 +1,33 @@
+- generic [ref=e15]:
+  - banner [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]: 🌲
+      - generic [ref=e19]: 云杉智能客服
+    - navigation [ref=e20]:
+      - button "智能对话" [ref=e21] [cursor=pointer]
+      - button "知识库" [active] [ref=e22] [cursor=pointer]
+      - button "管理后台" [ref=e23] [cursor=pointer]
+    - generic [ref=e24]:
+      - generic [ref=e25]: 管
+      - generic [ref=e26]: 管理员
+      - button "退出" [ref=e27] [cursor=pointer]
+  - main [ref=e28]:
+    - generic [ref=e374]:
+      - generic [ref=e375]:
+        - generic [ref=e376]:
+          - heading "知识库" [level=2] [ref=e377]
+          - paragraph [ref=e378]: 上传文档（.txt / .md / .pdf），系统自动解析并向量化，用于智能问答检索
+        - generic [ref=e379]:
+          - button "＋ 新知识库" [ref=e380] [cursor=pointer]
+          - button "＋ 上传文档" [ref=e381] [cursor=pointer]
+      - generic [ref=e382]: "[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"doc_id\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer\",\"input\":\"bases\"}]"
+      - generic [ref=e383]:
+        - generic [ref=e384]:
+          - generic [ref=e385]: 文档名称
+          - generic [ref=e386]: 类型
+          - generic [ref=e387]: 状态
+          - generic [ref=e388]: 分块数
+          - generic [ref=e389]: 上传时间
+          - generic [ref=e390]: 操作
+        - generic [ref=e391]: 知识库为空，点击右上角上传文档
+      - generic [ref=e392]: 💡 预置示例文档（产品介绍 / 常见问题FAQ / 退换货政策）已自动向量化，可直接在「智能对话」中提问测试。

@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     # 业务规则
     max_question_length: int = 500
     daily_question_limit: int = 100
+    max_upload_size_mb: int = 10  # 上传文档大小上限（防呆，超限 413）
     fallback_reply: str = "抱歉，我在知识库中暂时没有找到与您的问题相关的信息。建议您换一种问法，或直接联系人工客服处理。"
 
     # 数据目录

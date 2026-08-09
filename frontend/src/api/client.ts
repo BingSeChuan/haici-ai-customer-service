@@ -45,6 +45,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  if (res.status === 401) {
+    // 登录态失效：清除本地凭证并跳转登录页
+    clearAuth();
+    window.dispatchEvent(new CustomEvent("haici:unauthorized"));
+    throw new Error("登录已过期，请重新登录");
+  }
   if (!res.ok) {
     let detail = `请求失败 (${res.status})`;
     try {

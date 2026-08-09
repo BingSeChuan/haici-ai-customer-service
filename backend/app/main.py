@@ -3,6 +3,7 @@
 启动：uvicorn app.main:app --reload --port 8000（在 backend/ 目录下）
 """
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,10 +12,70 @@ from .routers import admin, auth, chat, knowledge, sessions
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """启动时自动将 seed_docs 目录中的示例文档向量化（幂等：已处理过则跳过）。"""
+    import os
+
+    from sqlalchemy import select
+
+    from .config import settings
+    from .database import SessionLocal
+    from .models import Document, KnowledgeBase, User
+    from .services.knowledge import process_document_async
+
+    db = SessionLocal()
+    try:
+        seed_dir = settings.seed_docs_dir
+        if os.path.isdir(seed_dir):
+            admin_user = db.scalar(select(User).where(User.is_admin.is_(True)))
+            if admin_user is not None:
+                kb = db.scalar(select(KnowledgeBase).where(KnowledgeBase.id == 1))
+                if kb is None:
+                    kb = KnowledgeBase(
+                        id=1,
+                        user_id=admin_user.id,
+                        name="示例知识库",
+                        description="预置示例文档（产品/FAQ/退换货政策）",
+                    )
+                    db.add(kb)
+                    db.commit()
+
+                for name in sorted(os.listdir(seed_dir)):
+                    path = os.path.join(seed_dir, name)
+                    if not os.path.isfile(path):
+                        continue
+                    ext = os.path.splitext(name)[1].lower().lstrip(".")
+                    existing = db.scalar(select(Document).where(Document.file_path == path))
+                    if existing and existing.status == "ready":
+                        continue
+                    if existing is None:
+                        doc = Document(
+                            user_id=admin_user.id,
+                            knowledge_base_id=kb.id,
+                            name=name,
+                            doc_type=ext,
+                            status="processing",
+                            file_path=path,
+                        )
+                        db.add(doc)
+                        db.commit()
+                        db.refresh(doc)
+                    else:
+                        doc = existing
+                    if doc.status == "processing":
+                        process_document_async(doc.id)
+    finally:
+        db.close()
+    yield
+
+
 app = FastAPI(
     title="海鹚智能客服系统",
     description="企业级 LLM 智能客服（RAG + 流式输出）— AI 开发工程师笔试题",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # 本地开发允许所有来源；生产环境应收紧
@@ -36,58 +97,3 @@ app.include_router(admin.router)
 @app.get("/")
 def root():
     return {"app": "海鹚智能客服系统", "docs": "/docs", "status": "ok"}
-
-
-@app.on_event("startup")
-def startup_seed():
-    """启动时自动将 seed_docs 目录中的示例文档向量化（幂等：已处理过则跳过）。"""
-    import os
-
-    from sqlalchemy import select
-
-    from .config import settings
-    from .database import SessionLocal
-    from .models import Document, KnowledgeBase, User
-    from .services.knowledge import process_document_async
-
-    db = SessionLocal()
-    try:
-        seed_dir = settings.seed_docs_dir
-        if not os.path.isdir(seed_dir):
-            return
-        # 示例知识库（admin 用户所有，id=1）
-        admin = db.scalar(select(User).where(User.is_admin.is_(True)))
-        if admin is None:
-            return
-        kb = db.scalar(select(KnowledgeBase).where(KnowledgeBase.id == 1))
-        if kb is None:
-            kb = KnowledgeBase(id=1, user_id=admin.id, name="示例知识库", description="预置示例文档（产品/FAQ/退换货政策）")
-            db.add(kb)
-            db.commit()
-
-        for name in sorted(os.listdir(seed_dir)):
-            path = os.path.join(seed_dir, name)
-            if not os.path.isfile(path):
-                continue
-            ext = os.path.splitext(name)[1].lower().lstrip(".")
-            existing = db.scalar(select(Document).where(Document.file_path == path))
-            if existing and existing.status == "ready":
-                continue
-            if existing is None:
-                doc = Document(
-                    user_id=admin.id,
-                    knowledge_base_id=kb.id,
-                    name=name,
-                    doc_type=ext,
-                    status="processing",
-                    file_path=path,
-                )
-                db.add(doc)
-                db.commit()
-                db.refresh(doc)
-            else:
-                doc = existing
-            if doc.status == "processing":
-                process_document_async(doc.id)
-    finally:
-        db.close()

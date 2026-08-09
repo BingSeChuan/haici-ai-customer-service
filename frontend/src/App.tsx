@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { clearAuth, getStoredUser, getToken } from "./api/client";
 import type { User } from "./api/types";
 import ChatPage from "./pages/ChatPage";
@@ -11,6 +11,13 @@ type Tab = "chat" | "knowledge" | "admin";
 export default function App() {
   const [user, setUser] = useState<User | null>(getStoredUser());
   const [tab, setTab] = useState<Tab>("chat");
+
+  // 任意接口返回 401（token 过期）时自动登出
+  useEffect(() => {
+    const onUnauthorized = () => setUser(null);
+    window.addEventListener("haici:unauthorized", onUnauthorized);
+    return () => window.removeEventListener("haici:unauthorized", onUnauthorized);
+  }, []);
 
   const logout = () => {
     clearAuth();
