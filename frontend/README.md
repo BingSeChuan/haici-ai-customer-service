@@ -41,6 +41,7 @@ src/
 │   ├── LoginPage.tsx
 │   ├── ChatPage.tsx     # 核心：流式对话
 │   ├── KnowledgePage.tsx
+│   ├── MemoryPage.tsx   # 长期记忆 / 画像
 │   └── AdminPage.tsx
 ├── App.tsx              # 布局 + 导航
 └── index.css

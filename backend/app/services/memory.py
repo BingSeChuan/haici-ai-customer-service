@@ -1,4 +1,4 @@
-"""Agent 记忆系统（对齐 Mem0 / L0-L3 分层 / 2026 企业级实践）。
+"""Agent 记忆系统（L0-L3 分层）。
 
 分层架构：
 - L0 原始对话：MySQL messages（全量保存，确保不丢）—— 已有
@@ -6,12 +6,12 @@
 - L2 场景分块：记忆按 session 关联，带上下文检索
 - L3 用户画像：结构化 KV（UserProfile 表），Upsert + 冲突检测覆盖 —— 本模块
 
-核心设计（对应 22 题中的关键治理点）：
-1. 防串扰：情景记忆检索强制 metadata where={"user_id": ...} 硬过滤（题 4/8）
-2. 写入去重：新记忆写入前检索 Top-3 相似，LLM 判定合并/跳过（题 11）
-3. 遗忘机制：is_active 软删除 + expires_at 过期 + 低重要性优先遗忘（题 12）
-4. 画像冲突检测：新旧值矛盾时 LLM 裁决覆盖，杜绝自相矛盾（题 13）
-5. 防提示词注入：记忆只接受 LLM 提取的结构化 JSON，原始用户指令不直接入库（题 17）
+核心设计：
+1. 防串扰：情景记忆检索强制 metadata where={"user_id": ...} 硬过滤
+2. 写入去重：新记忆写入前检索 Top-3 相似，LLM 判定合并/跳过
+3. 遗忘机制：is_active 软删除 + expires_at 过期 + 低重要性优先遗忘
+4. 画像冲突检测：新旧值矛盾时 LLM 裁决覆盖，杜绝自相矛盾
+5. 防提示词注入：记忆只接受 LLM 提取的结构化 JSON，原始用户指令不直接入库
 """
 import asyncio
 import logging
@@ -47,21 +47,21 @@ EXTRACT_PROMPT = """你是记忆提取器。从以下客服对话中提取值得
 对话内容：
 {conversation}"""
 
-# 写入去重（题 11）：检索到相似记忆时由 LLM 裁决
+# 写入去重：检索到相似记忆时由 LLM 裁决
 DEDUP_PROMPT = """新记忆与已有记忆是否表达同一个事实/偏好？（语义重复 → true）
 新记忆：{new}
 已有记忆：
 {existing}
 仅输出 JSON：{{"duplicate": true/false, "decision": "merge|skip|keep", "reason": "一句话"}}"""
 
-# 画像冲突检测（题 13）：与旧值矛盾时覆盖
+# 画像冲突检测：与旧值矛盾时覆盖
 PROFILE_CONFLICT_PROMPT = """用户画像更新冲突检测。
 字段：{key}
 旧值：{old_value}
 新值：{new_value}
 仅输出 JSON：{{"conflict": true/false, "decision": "overwrite|keep|merge", "reason": "一句话"}}"""
 
-# 记忆注入 Prompt（题 18 注意力聚焦）：只注入当前用户相关记忆
+# 记忆注入 Prompt（注意力聚焦）：只注入当前用户相关记忆
 MEMORY_CONTEXT_PROMPT = """你是记忆检索器。根据用户当前问题，从【用户记忆库】中挑出最相关的记忆条目（最多 3 条）：
 - 相关：能帮助个性化回答（用户背景、历史偏好、之前问过的事）；
 - 不相关的一律不选。
@@ -72,7 +72,7 @@ MEMORY_CONTEXT_PROMPT = """你是记忆检索器。根据用户当前问题，�
 用户记忆库：
 {memories}"""
 
-# 短期记忆重要性分级：用户指令与关键结论永不丢，工具输出可截断（题 3）
+# 短期记忆重要性分级：用户指令与关键结论永不丢，工具输出可截断
 IMPORTANT_HINT_WORDS = ["必须", "不要", "记住", "我喜欢", "我不喜欢", "我的", "请帮我", "订单", "价格", "退款", "投诉"]
 
 
@@ -116,7 +116,7 @@ async def extract_memory(conversation: str) -> dict:
 
 
 async def _dedup_check(content: str, existing: list[str]) -> str:
-    """写入去重（题 11）：与已有记忆语义重复时合并/跳过。"""
+    """写入去重：与已有记忆语义重复时合并/跳过。"""
     if not existing:
         return "keep"
     try:
@@ -145,7 +145,7 @@ async def store_memory(db: Session, user_id: int, session_id: int, memory_type: 
     修复 2：vector_id（Chroma ID）落库到 UserMemory.vector_id，
     遗忘时按 vector_id 精确删除向量（此前用 MySQL int id 永远删不掉）。
     """
-    # 题 11：写入前检索相似记忆
+    # 写入前检索相似记忆（去重）
     provider = get_embedding_provider()
     vector = await asyncio.to_thread(provider.embed, [content])
     vector = vector[0]
@@ -192,7 +192,7 @@ async def store_memory(db: Session, user_id: int, session_id: int, memory_type: 
 
 
 async def upsert_profile(db: Session, user_id: int, session_id: int, key: str, value: str):
-    """L3 画像 Upsert + 冲突检测覆盖（题 13）。"""
+    """L3 画像 Upsert + 冲突检测覆盖。"""
     existing = db.scalar(select(UserProfile).where(UserProfile.user_id == user_id, UserProfile.key == key))
     if existing and existing.value != value:
         try:
@@ -224,7 +224,7 @@ async def upsert_profile(db: Session, user_id: int, session_id: int, key: str, v
 
 
 async def process_conversation_memory(db: Session, user_id: int, session_id: int, user_q: str, answer: str):
-    """对话落库后的记忆流水线：提取 → 去重入库 → 画像更新（题 5 异步卸载思路）。"""
+    """对话落库后的记忆流水线：提取 → 去重入库 → 画像更新（异步卸载思路）。"""
     try:
         result = await extract_memory(f"用户：{user_q}\n客服：{answer}")
         for m in result.get("memories", [])[:5]:
@@ -246,17 +246,17 @@ async def process_conversation_memory(db: Session, user_id: int, session_id: int
 
 
 async def retrieve_memory_context(db: Session, user_id: int, question: str, top_k: int = 5) -> str:
-    """读取链路（题 15/18）：问答前按 user_id 硬过滤检索记忆，组装为注入文本。
+    """读取链路：问答前按 user_id 硬过滤检索记忆，组装为注入文本。
 
     返回空字符串表示无相关记忆（不注入，保持 Prompt 干净）。
     """
-    # 画像（语义记忆）直接注入（最新画像永远进 Prompt 头部，题 18 目标锚定）
+    # 画像（语义记忆）直接注入（最新画像永远进 Prompt 头部）
     profiles = db.scalars(
         select(UserProfile).where(UserProfile.user_id == user_id).order_by(UserProfile.updated_at.desc())
     ).all()
     profile_lines = [f"- {p.key}: {p.value}" for p in profiles]
 
-    # 情景记忆：向量检索 + user_id 硬过滤（题 4/8 防串扰），再经 LLM 挑选
+    # 情景记忆：向量检索 + user_id 硬过滤（防串扰），再经 LLM 挑选
     try:
         # 修复 2b：已遗忘（is_active=False）记忆的 vector_id 集合，检索后过滤兜底
         # （主机制是 forget 时删除向量；此过滤保证向量删除失败时也不泄露）
@@ -287,10 +287,10 @@ async def retrieve_memory_context(db: Session, user_id: int, question: str, top_
                 {"id": i, "text": d}
                 for i, d in enumerate(memory_docs)
                 if memory_ids[i] in active_vector_ids  # 已遗忘记忆不召回（修复 2b）
-                and 1 - (hits["distances"][0][i]) >= 0.35  # 阈值拦截（题 8）
+                and 1 - (hits["distances"][0][i]) >= 0.35  # 阈值拦截
             ]
             if candidates:
-                # LLM 挑选最相关的 ≤3 条（注意力聚焦，题 18）
+                # LLM 挑选最相关的 ≤3 条（注意力聚焦）
                 result = await chat_json(
                     [
                         {"role": "system", "content": "你是记忆检索器。"},
@@ -330,7 +330,7 @@ async def retrieve_memory_context(db: Session, user_id: int, question: str, top_
 
 
 def forget_memory(db: Session, memory_id: int, user_id: int) -> bool:
-    """遗忘机制（题 12/修复 2）：软删除 is_active=False + 按 vector_id 删除向量。
+    """遗忘机制：软删除 is_active=False + 按 vector_id 删除向量。
 
     向量删除失败只记日志不阻断软删除（DB 侧 is_active 仍保证检索过滤）。
     """

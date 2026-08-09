@@ -120,7 +120,7 @@ async def chat_stream(
                 routed_kb_name = kb_obj.name
     history = await get_history(db, session.id)
 
-    # ---- 长期记忆读取（题 15/18）：问答前注入用户画像与历史偏好 ----
+    # ---- 长期记忆读取：问答前注入用户画像与历史偏好 ----
     from ..services.memory import process_conversation_memory, retrieve_memory_context
 
     memory_context = await retrieve_memory_context(db, user.id, question)
@@ -189,7 +189,7 @@ async def chat_stream(
 
             yield _sse("done", {"message_id": assistant_id})
 
-            # ---- L1 记忆提取（异步，不阻塞流；题 5 异步卸载思路） ----
+            # ---- L1 记忆提取（异步，不阻塞流） ----
             # 修复 7：任务集合持有引用防止被 GC 丢弃；完成后自动移除
             task = asyncio.create_task(
                 _memory_pipeline(user_id=user.id, session_id=session.id, question=question, answer=answer)

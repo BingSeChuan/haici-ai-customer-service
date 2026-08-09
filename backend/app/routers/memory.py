@@ -1,4 +1,4 @@
-"""长期记忆路由：记忆列表 / 画像 / 遗忘（题 12 遗忘机制的用户侧入口）。"""
+"""长期记忆路由：记忆列表 / 画像 / 遗忘（遗忘机制的用户侧入口）。"""
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 

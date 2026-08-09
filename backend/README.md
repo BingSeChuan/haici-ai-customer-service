@@ -61,10 +61,10 @@ app/
 ├── main.py            # 入口 + 启动时种子文档向量化
 ├── config.py          # 环境配置
 ├── database.py        # SQLAlchemy 引擎
-├── models/            # 7 张表 ORM
+├── models/            # 9 张表 ORM
 ├── schemas/           # Pydantic 模型
-├── routers/           # auth / chat / knowledge / sessions / admin
-└── services/          # rag / llm / embedding / vector_store / knowledge / usage / auth
+├── routers/           # auth / chat / knowledge / sessions / admin / memory
+└── services/          # rag / llm / embedding / vector_store / knowledge / usage / auth / memory
 scripts/
 ├── init_db.py         # 建表 + 种子数据
 data/seed_docs/        # 示例知识库文档（启动自动向量化）
@@ -73,6 +73,8 @@ data/seed_docs/        # 示例知识库文档（启动自动向量化）
 ## 测试
 
 ```bash
-# 冒烟测试脚本
+# 单元/集成测试
+.venv/Scripts/python -m pytest tests/ -v
+# 端到端冒烟测试
 .venv/Scripts/python scripts/smoke_test.py
 ```

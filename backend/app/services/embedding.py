@@ -3,7 +3,7 @@
 - local_bge: 本地 sentence-transformers bge-small-zh-v1.5（免注册，中文优化，CPU 可跑）
 - openai_compatible: 任意 OpenAI 兼容 embedding 端点（如 SiliconFlow 免费 bge-m3）
 
-DeepSeek 不提供 embedding API，因此向量化与对话 LLM 解耦 —— 这是本项目的关键设计决策。
+DeepSeek 不提供 embedding API，因此向量化与对话 LLM 解耦。
 """
 import logging
 from abc import ABC, abstractmethod

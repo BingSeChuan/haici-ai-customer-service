@@ -91,7 +91,7 @@ def chunk_text(text: str, chunk_size: int | None = None, overlap: int | None = N
     1. 先按空行拆段，再把段内以章节标记（一、/1./Q1：/第X条/##）开头的行
        单独切开 —— 保证每个版本/条款/FAQ 条目独立成块。若把多个知识点合并进
        一个大块，检索与 LLM 都会"稀释"：用户问"标准版多少钱"，命中块里却混着
-       公司简介+专业版，模型容易漏读 —— 这是本项目实测定位到的核心质量问题；
+       公司简介+专业版，模型容易漏读定价信息；
     2. 章节单元独立成块（语义原子，不与其他段落合并）；
        普通段落按 chunk_size 预算合并相邻小块；
     3. 超长块内部按句子切割，overlap 保留上一块尾部；
@@ -146,7 +146,7 @@ def chunk_text(text: str, chunk_size: int | None = None, overlap: int | None = N
         chunks.append(buf)
 
     # 3. 短标题块（<20 字，如"一、公司简介"）并入下一块：避免纯关键词块
-    #    在向量检索中虚高命中、挤掉真正含答案的块（实测排名问题）
+    #    在向量检索中虚高命中、挤掉真正含答案的块
     merged: list[str] = []
     i = 0
     while i < len(chunks):
